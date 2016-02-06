@@ -13,6 +13,7 @@ var posterize = require('./reducers/posterize');
 var threshold = require('./reducers/threshold');
 var findBlobs = require('./reducers/findBlobs');
 var findBlobBoundaries = require('./reducers/findBlobBoundaries');
+var eliminateSmallBlobs = require('./reducers/eliminateSmallBlobs');
 var colorizeBlobs = require('./reducers/colorizeBlobs');
 var drawBlobBoundaries = require('./reducers/drawBlobBoundaries');
 var findReferenceBlob = require('./reducers/findReferenceBlob');
@@ -27,6 +28,7 @@ app.registerReducer(posterize);
 app.registerReducer(threshold);
 app.registerReducer(findBlobs);
 app.registerReducer(findBlobBoundaries);
+app.registerReducer(eliminateSmallBlobs);
 app.registerReducer(colorizeBlobs);
 app.registerReducer(drawBlobBoundaries);
 app.registerReducer(findReferenceBlob);
@@ -35,9 +37,14 @@ app.registerReducer(drawWinnerBlob);
 
 //Apply actions
 
-var imageFile = "./images/sample3.jpg"; //OK
-//var imageFile = "./images/sample.png"; //KO
-//var imageFile = "./images/sample9.png"; //KO
+//var imageFile = "./images/sample3.jpg"; var minSize = 15; //OK
+//var imageFile = "./images/sample.png"; var minSize = 15; //OK
+//imageFile = "./images/sample5.jpeg"; var minSize = 15; //OK
+//var imageFile = "./images/sample4.jpg"; var minSize = 30; //KO : palets collés
+//var imageFile = "./images/sample9.png"; var minSize = 20; //KO : Rayures sur la planche, bug avec le petit ???
+//var imageFile = "./images/sample16.jpg"; var minSize = 15; //KO : l'exterieur de la planche perturbe
+//var imageFile = "./images/sample14.jpg"; var minSize = 5; //KO : le seuillage est pas adapté à la couleur de la photo
+var imageFile = "./images/blob2.png"; var minSize = 5; //KO : image test pour la detection de cercles
 
 app.dispatch(loadImageFile.action(imageFile))
 .then(function(){
@@ -50,6 +57,7 @@ app.dispatch(loadImageFile.action(imageFile))
 	app.dispatch(writeImage.action("output/threshold.jpg"));
 	app.dispatch(findBlobs.action());
 	app.dispatch(findBlobBoundaries.action());
+	app.dispatch(eliminateSmallBlobs.action(minSize));
 	app.dispatch(colorizeBlobs.action());
 	app.dispatch(drawBlobBoundaries.action());
 	app.dispatch(writeImage.action("output/blobs.jpg"));

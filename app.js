@@ -31,14 +31,13 @@ var store = Redux.createStore(
 	    thunkMiddleware // async actions
 	));
 
-
 //Register reducer function
 //TODO ACY Tester redux actions : https://github.com/acdlite/redux-actions
 module.exports.registerReducer = function(reducer){
 	reducers[reducer.type] = reducer.apply;
-}
+};
 
 //Dispatch action function
 module.exports.dispatch = function(action){
 	return store.dispatch(action);
-}
+};
