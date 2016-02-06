@@ -69,5 +69,8 @@ app.dispatch(loadImageFile.action(imageFile))
 
 //TODO ACY
 //Autres liens intéressants :
+// - http://www.aforgenet.com/articles/shape_checker/
+//		Quelques astuces pour détecter des cercles		
 // - https://github.com/mtschirs/js-objectdetect/
+//		Reconnaissance de pattern, c'est de l'artillerie lourde, à utiliser en dernier recours 
 
