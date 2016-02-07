@@ -1,3 +1,5 @@
+//ACY 07/02 Se baser sur le centre du blob ne marche pas quand on a un blob qui englobe deux palets collés
+
 var ACTION_TYPE = 'FIND_WINNER_BLOB';
 
 module.exports.type = ACTION_TYPE;

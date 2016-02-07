@@ -1,3 +1,6 @@
+//ACY 07/02 L'algo a tendance à agrandir les trous dans les blobs qui se trouvent près de la bordure, 
+// il faudrait peut être boucher les trous avant d'appliquer cette étape 
+
 var ACTION_TYPE = 'ELIMINATE_NOISE_PIXELS';
 
 module.exports.type = ACTION_TYPE;
