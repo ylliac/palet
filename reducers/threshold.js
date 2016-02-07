@@ -31,9 +31,13 @@ function threshold(thresholdValue) {
 		var blue  = this.bitmap.data[ idx + 2 ];
 		var alpha = this.bitmap.data[ idx + 3 ];
 		
-		var color = Jimp.rgbaToInt(red, green, blue, alpha);
-		
-		if(color > thresholdValue ){
+		//var color = Jimp.rgbaToInt(red, green, blue, alpha);
+		var okRed = red < thresholdValue ? 1 : 0;
+		var okGreen = green < thresholdValue ? 1 : 0;
+		var okBlue = blue < thresholdValue ? 1 : 0;
+		var score = okRed + okGreen + okBlue;
+
+		if(score < 2 ){
 			this.bitmap.data[idx] = 255;
 			this.bitmap.data[idx+1] = 255;
 			this.bitmap.data[idx+2] = 255;

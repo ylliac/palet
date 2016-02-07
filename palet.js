@@ -57,7 +57,7 @@ app.registerReducer(drawWinnerBlob);
 //var imageFile = "./images/sample4.jpg"; var minSize = 30;  var thresholdValue = 0x44444444;
 //KO : palets collés
 
-var imageFile = "./images/sample9.png"; var minSize = 10; var thresholdValue = 0x44444444;
+var imageFile = "./images/sample9.png"; var minSize = 10; var thresholdValue = 100;
 //KO : Rayures sur la planche, bug avec le petit ???
 
 //var imageFile = "./images/sample16.jpg"; var minSize = 15;  var thresholdValue = 0x44444444;
@@ -74,8 +74,11 @@ app.dispatch(loadImageFile.action(imageFile))
 	app.dispatch(writeImage.action("output/original.jpg"));
 	app.dispatch(greyscale.action());
 	app.dispatch(writeImage.action("output/greyscale.jpg"));
-	app.dispatch(posterize.action());
-	app.dispatch(writeImage.action("output/posterize.jpg"));
+	
+	//ACY : Désactivé momentanément (ou pas), a tendance à ajouter les ombres des palets aux blobs
+	//app.dispatch(posterize.action());
+	//app.dispatch(writeImage.action("output/posterize.jpg"));
+	
 	app.dispatch(threshold.action(thresholdValue));
 	app.dispatch(writeImage.action("output/threshold.jpg"));
 	app.dispatch(eliminateNoisePixels.action(minSize));
