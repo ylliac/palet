@@ -57,10 +57,9 @@ function findBlobs(width, height, pixels) {
 
         pos = (y*xSize+x)*4;
 
-        // We're only looking at the alpha channel in this case but you can
+        // We're only looking at the red channel in this case but you can
         // use more complicated heuristics
-        //isVisible = (srcPixels[pos+3] > 127);
-        isVisible = (srcPixels[pos] < 127); //ACY : Heuristic on the red channel
+        isVisible = (srcPixels[pos] < 127); 
 
         if( isVisible ){
 
@@ -142,8 +141,6 @@ function findBlobs(width, height, pixels) {
   // Let's rename them: [1,2,3,4,etc..]
   var uniqueLabels = unique(labelTable);
   
-  //TODO ACY Filtrer les blobs trop petits
-
   var j = 0;
   for( label in uniqueLabels ){
     labelTable[label] = j++;
