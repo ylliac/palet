@@ -3,6 +3,9 @@
 	with an immutable state (https://facebook.github.io/immutable-js/).
 */
 
+var _ = require("lodash");
+var fs = require("fs");
+var path = require("path");
 var Immutable = require('immutable');
 var Redux = require('redux');
 var thunkMiddleware = require('redux-thunk');
@@ -35,6 +38,18 @@ var store = Redux.createStore(
 //TODO ACY Tester redux actions : https://github.com/acdlite/redux-actions
 module.exports.registerReducer = function(reducer){
 	reducers[reducer.type] = reducer.apply;
+};
+
+//Register reducer directory
+module.exports.registerReducerDirectory = function(directory){
+	
+	var reducerFiles = fs.readdirSync(directory);
+
+	_.each(reducerFiles, reducerFile => {
+		var reducer = require(path.join(directory, reducerFile));
+		registerReducer(reducer);
+	});
+
 };
 
 //Dispatch action function

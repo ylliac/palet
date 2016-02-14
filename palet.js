@@ -5,6 +5,7 @@
 var app = require('./app');
 
 //CHARGEMENT DES ACTIONS
+//TODO ACY Charger le répertoire 'reducers' avec registerReducerDirectory
 
 var loadImageFile = require('./reducers/loadImageFile');
 var loadImage = require('./reducers/loadImage');
