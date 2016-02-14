@@ -26,7 +26,7 @@ function drawWinner(blobMap, referenceBlob, winnerBlob, blobList){
 	return function(x, y, idx){
 		var label = blobMap[y][x].toString();
 
-		//Check if the pixel belongs to the 'petit'
+		//Check if the pixel belongs to a blob that has been deleted
 		if(blobList.indexOf(label) === -1){
 			//If so, color it in white
 			this.bitmap.data[idx] = 255;

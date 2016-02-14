@@ -37,7 +37,7 @@ function eliminateNoisePixels(width, height, pixels, minSize){
 		}
 	}
 
-	var isVisible = 0;
+	var isVisible;
 
 	for( y=1; y<ySize-1; y++){
 

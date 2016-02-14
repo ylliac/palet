@@ -17,7 +17,6 @@ module.exports.apply = function(state, action){
 };
 
 function eliminateSmallBlobBoundaries(blobBoundaries, minSize){
-	//Get the smallest blob: it is the 'petit'
 	var result = {};
 
 	for(var currentLabel in blobBoundaries){

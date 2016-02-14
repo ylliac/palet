@@ -4,19 +4,15 @@
 
 var app = require('./app');
 
-//Debug
-/*var vorlonWrapper = require("vorlon-node-wrapper");
-var serverUrl = "http://localhost:1337";
-var dashboardSession = "default";
-vorlonWrapper.start(serverUrl, dashboardSession, false);*/
+//CHARGEMENT DES ACTIONS
 
-//Register reducers 
 var loadImageFile = require('./reducers/loadImageFile');
 var loadImage = require('./reducers/loadImage');
 var writeImage = require('./reducers/writeImage');
 var greyscale = require('./reducers/greyscale');
 var posterize = require('./reducers/posterize');
 var threshold = require('./reducers/threshold');
+var fillHoles = require('./reducers/fillHoles');
 var eliminateNoisePixels = require('./reducers/eliminateNoisePixels');
 var findBlobs = require('./reducers/findBlobs');
 var findBlobBoundaries = require('./reducers/findBlobBoundaries');
@@ -33,6 +29,7 @@ app.registerReducer(writeImage);
 app.registerReducer(greyscale);
 app.registerReducer(posterize);
 app.registerReducer(threshold);
+app.registerReducer(fillHoles);
 app.registerReducer(eliminateNoisePixels);
 app.registerReducer(findBlobs);
 app.registerReducer(findBlobBoundaries);
@@ -43,56 +40,99 @@ app.registerReducer(findReferenceBlob);
 app.registerReducer(findWinnerBlob);
 app.registerReducer(drawWinnerBlob);
 
-//Apply actions
+//JEUX DE TEST
 
-//var imageFile = "./images/sample3.jpg"; var minSize = 15;  var thresholdValue = 0x44444444;
-//OK
+//Palet plus planche avec rayures
+var imageFile = "./images/sample9.png";
+var minSize = 10;
+var thresholdValue = 100;
+//TODO : Améliorer la recherche du vainqueur parce que se baser sur les emprise des blobs
+// ne marche pas quand un blob représente deux palets qui se chevauchent
 
-//var imageFile = "./images/sample.png"; var minSize = 15;  var thresholdValue = 0x44444444;
-//OK
+//Palet plus planche sans rayure mais avec un palet clair qui pose problème au seuillage
+// var imageFile = "./images/sample3.jpg"; 
+// var minSize = 10;  
+// var thresholdValue = 120;
+//TODO : Améliorer le remplissage des trous pour boucher le trou du palet du bas
 
-//var imageFile = "./images/sample5.jpeg"; var minSize = 15;  var thresholdValue = 0x44444444;
-//OK
+//Deux disques tout simples
+// var imageFile = "./images/sample.png";
+// var minSize = 15;
+// var thresholdValue = 100;
 
-//var imageFile = "./images/sample4.jpg"; var minSize = 30;  var thresholdValue = 0x44444444;
-//KO : palets collés
+//Palets sur une planche avec rayures
+// var imageFile = "./images/sample5.jpeg";
+// var minSize = 15;
+// var thresholdValue = 100;
 
-var imageFile = "./images/sample9.png"; var minSize = 10; var thresholdValue = 100;
-//KO : Rayures sur la planche, bug avec le petit ???
+//Palets fortement eclairés
+// var imageFile = "./images/sample1.jpg";
+// var minSize = 15;
+// var thresholdValue = 200;
+//TODO : Les reflets sur les palets du haut crééent un trou difficile à boucher
 
-//var imageFile = "./images/sample16.jpg"; var minSize = 15;  var thresholdValue = 0x44444444;
-//KO : l'exterieur de la planche perturbe
 
-//var imageFile = "./images/sample14.jpg"; var minSize = 5;  var thresholdValue = 0x44444444;
-//KO : le seuillage est pas adapté à la couleur de la photo
+//Palets sur planche de plusieurs couleurs : cas tordu !
+// var imageFile = "./images/sample7.jpg";
+// var minSize = 15;
+// var thresholdValue = 100;
 
-//var imageFile = "./images/blob2.png"; var minSize = 5;  var thresholdValue = 0x44444444;
-//KO : image test pour la detection de cercles
+//Palets sur planche avec ... des reflets sur les numéros !
+// var imageFile = "./images/sample15.jpg";
+// var minSize = 15;
+// var thresholdValue = 110;
 
+//ALGORITHME
+
+//On commence par charger l'image
 app.dispatch(loadImageFile.action(imageFile))
 .then(function(){
-	app.dispatch(writeImage.action("output/original.jpg"));
+	app.dispatch(writeImage.action("output/1-original.jpg"));
+
+	//Filtre noir et blanc
 	app.dispatch(greyscale.action());
-	app.dispatch(writeImage.action("output/greyscale.jpg"));
+	app.dispatch(writeImage.action("output/2-greyscale.jpg"));
 	
+	//Posterize
 	//ACY : Désactivé momentanément (ou pas), a tendance à ajouter les ombres des palets aux blobs
 	//app.dispatch(posterize.action());
-	//app.dispatch(writeImage.action("output/posterize.jpg"));
+	//app.dispatch(writeImage.action("output/3-posterize.jpg"));
 	
+	//Seuillage
 	app.dispatch(threshold.action(thresholdValue));
-	app.dispatch(writeImage.action("output/threshold.jpg"));
+	app.dispatch(writeImage.action("output/4-threshold.jpg"));
+	
+	//Remplissage des trous créés par le seuillage
+	app.dispatch(fillHoles.action());
+	app.dispatch(writeImage.action("output/5-fillHoles.jpg"));	
+	
+	//Elimination du bruit (rayures de la planche)
 	app.dispatch(eliminateNoisePixels.action(minSize));
-	app.dispatch(writeImage.action("output/noise.jpg"));
+	app.dispatch(writeImage.action("output/6-noise.jpg"));
+	
+	//Recherche des blobs et de leur emprise
 	app.dispatch(findBlobs.action());
 	app.dispatch(findBlobBoundaries.action());
+
+	//Elimination des petits blobs
 	app.dispatch(eliminateSmallBlobs.action(minSize));
-	app.dispatch(colorizeBlobs.action());
-	app.dispatch(drawBlobBoundaries.action());
-	app.dispatch(writeImage.action("output/blobs.jpg"));
+
+	//DEBUG : Colorisation des blobs
+	// app.dispatch(colorizeBlobs.action());
+	//DEBUG : Dessin des emprises des blobs
+	// app.dispatch(drawBlobBoundaries.action());
+	// app.dispatch(writeImage.action("output/7-blobs.jpg"));
+	
+	//Recherche du petit
 	app.dispatch(findReferenceBlob.action());
+	
+	//Recherche du vainqueur 
 	app.dispatch(findWinnerBlob.action());
+	
+	//Dessin du vainqueur et du petit
 	app.dispatch(drawWinnerBlob.action());
-	app.dispatch(writeImage.action("output/result.jpg"));
+
+	app.dispatch(writeImage.action("output/8-result.jpg"));
 });
 
 //TODO ACY
