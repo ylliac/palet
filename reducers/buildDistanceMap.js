@@ -30,22 +30,34 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	// referenceBlob.xcenter
 	// referenceBlob.ycenter
 	
-	// build distance array
+	// build distance array for neighbors
 	console.log("build distance array");
-	var distances = [];
-	distances.push( [] );
-	distances[0][0] = Math.sqrt(2);
-	distances[0][1] = 1;
-	distances[0][2] = Math.sqrt(2);
-	distances.push( [] );
-	distances[1][0] = 1;
-	distances[1][1] = 0;
-	distances[1][2] = 1;
-	distances.push( [] );
-	distances[2][0] = Math.sqrt(2);
-	distances[2][1] = 1;
-	distances[2][2] = Math.sqrt(2);
-	console.log(distances);
+	var neighborsDistances = [];
+	neighborsDistances.push( [] );
+	neighborsDistances[0][0] = Math.sqrt(2);
+	neighborsDistances[0][1] = 1;
+	neighborsDistances[0][2] = Math.sqrt(2);
+	neighborsDistances.push( [] );
+	neighborsDistances[1][0] = 1;
+	neighborsDistances[1][1] = 0;
+	neighborsDistances[1][2] = 1;
+	neighborsDistances.push( [] );
+	neighborsDistances[2][0] = Math.sqrt(2);
+	neighborsDistances[2][1] = 1;
+	neighborsDistances[2][2] = Math.sqrt(2);
+	console.log(neighborsDistances);
+	
+	// define distance map
+	console.log("build distance map");
+	var distanceMap = [];
+	var x,y;
+	// start by labeling every pixel as infinite distance (-1)
+	for(x=0; x<width; x++){
+		distanceMap.push([]);
+		for(y=0; y<height; y++){
+			distanceMap[x][y].push(-1);
+		}
+	}
 		
 	// define priority queue using distance as comparison criteria
 	console.log("create prioity queue");
@@ -53,13 +65,18 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	  return b.distance - a.distance;
 	});
 	
-	// add first elements
+	// add neighbor elements
 	console.log("add reference blob center in queue");
-	var x,y;
-	queue.enq( {distance:0, x:referenceBlob.xcenter, y:referenceBlob.ycenter} );
+	referenceItem = {distance:0, x:Math.round(referenceBlob.xcenter), y:Math.round(referenceBlob.ycenter)};
+	distanceMap[referenceItem.x][referenceItem.y] = referenceItem.distance;
 	for(x=-1; x<=1; x++) {
 		for(y=-1; y<=1; y++) {
-			queue.enq( {distance:distances[x+1][y+1], x:referenceBlob.xcenter+x, y:referenceBlob.ycenter+y} );
+			// outside the image? skip
+			if( (Math.round(referenceBlob.xcenter+x) < 0 && Math.round(referenceBlob.xcenter+x)>=width) ||
+			    (Math.round(referenceBlob.ycenter+y) < 0 && Math.round(referenceBlob.ycenter+y)>=height) ) continue;
+			// add neighbor with updated distance and coordinates
+			queue.enq( {distance:neighborsDistances[x+1][y+1], x:Math.round(referenceBlob.xcenter+x), y:Math.round(referenceBlob.ycenter+y)} );
+			distanceMap[Math.round(referenceBlob.xcenter)][Math.round(referenceBlob.ycenter)] = 0;
 		}
 	}
 	console.log(queue);
@@ -67,7 +84,7 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	// recursive distance computation
 	console.log("creation of distance map");
 	while(queue.size()>0) {
-		
+		var current = queue.deq();
 	}
 
 	/*
