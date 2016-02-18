@@ -74,7 +74,9 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 			if( (referenceItem.x+x < 0 && referenceItem.x+x>=width) ||
 			    (referenceItem.y+y < 0 && referenceItem.y+y>=height) ) continue;
 			// add neighbor with updated distance and coordinates
-			var neighborItem = {distance:neighborsDistances[x+1][y+1], x:Math.round(referenceItem.x+x), y:Math.round(referenceItem.y+y)};
+			var neighborItem = {distance: neighborsDistances[x+1][y+1],
+			                    x: Math.round(referenceItem.x) + x,
+								y: Math.round(referenceItem.y) + y};
 			queue.enq( neighborItem );
 			distanceMap[neighborItem.x][neighborItem.y] = neighborItem.distance;
 		}
@@ -88,10 +90,14 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 		for(x=-1; x<=1; x++) {
 			for(y=-1; y<=1; y++) {
 				// outside the image? skip
-				if( (currentItem.x+x < 0 && currentItem.x+x>=width) ||
-					(currentItem.y+y < 0 && currentItem.y+y>=height) ) continue;
+				var neighborX = currentItem.x + x;
+				var neighborY = currentItem.y + y;
+				if( neighborX < 0 || neighborX>=width ||
+					neighborY < 0 || neighborY>=height ) continue;
 				// add neighbor with updated distance and coordinates
-				var neighborItem = {distance:neighborsDistances[x+1][y+1], x:Math.round(currentItem.x+x), y:Math.round(currentItem.y+y)};
+				var neighborItem = {distance: currentItem.distance + neighborsDistances[x+1][y+1],
+				                    x: currentItem.x + x,
+									y: currentItem.y + y};
 				// this pixel was already handled previously so skip it!
 				if(distanceMap[neighborItem.x][neighborItem.y]>=0) continue;
 				else {
@@ -101,6 +107,8 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 			}
 		}
 	}
+	
+	// TODO: add blobMap and check whenwe target the closest blob during neighbor aggregation
 
 	/*
 	// EXAMPLE
