@@ -20,14 +20,6 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	
 	// get reference blob boundaries
 	var referenceBlob = boundaries[referenceBlobLabel];
-	// referenceBlob.xmin
-	// referenceBlob.xmax
-	// referenceBlob.ymin
-	// referenceBlob.ymax
-	// referenceBlob.width
-	// referenceBlob.height
-	// referenceBlob.xcenter
-	// referenceBlob.ycenter
 	
 	// build distance array for neighbors
 	console.log("build distance array");
@@ -107,21 +99,8 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 			}
 		}
 	}
-	
 	// TODO: add blobMap and check whenwe target the closest blob during neighbor aggregation
-
-	/*
-	// EXAMPLE
-	queue.enq({ cash: 250, name: 'Valentina' });
-	queue.enq({ cash: 300, name: 'Jano' });
-	queue.enq({ cash: 150, name: 'Fran' });
-	queue.size(); // 3
-	queue.peek(); // { cash: 300, name: 'Jano' }
-	queue.deq(); // { cash: 300, name: 'Jano' }
-	queue.size(); // 2
-	*/
-	
 	console.log("build distance map done!");
 	
-	return result;
+	return distanceMap;
 }
