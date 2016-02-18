@@ -23,8 +23,7 @@ var drawBlobBoundaries = require('./reducers/drawBlobBoundaries');
 var findReferenceBlob = require('./reducers/findReferenceBlob');
 var findWinnerBlob = require('./reducers/findWinnerBlob');
 var drawWinnerBlob = require('./reducers/drawWinnerBlob');
-var buildDistanceMap = require('./reducers/buildDistanceMap');
-var drawDistanceMap = require('./reducers/drawDistanceMap');
+var findClosestBlob = require('./reducers/findClosestBlob');
 
 app.registerReducer(loadImageFile);
 app.registerReducer(loadImage);
@@ -42,8 +41,7 @@ app.registerReducer(drawBlobBoundaries);
 app.registerReducer(findReferenceBlob);
 app.registerReducer(findWinnerBlob);
 app.registerReducer(drawWinnerBlob);
-app.registerReducer(buildDistanceMap);
-app.registerReducer(drawDistanceMap);
+app.registerReducer(findClosestBlob);
 
 //JEUX DE TEST
 
@@ -131,8 +129,8 @@ app.dispatch(loadImageFile.action(imageFile))
 	//Recherche du petit
 	app.dispatch(findReferenceBlob.action());
 	
-	//Compute distance map
-	app.dispatch(buildDistanceMap.action());
+	//Find the closest blob and its closest pixel position
+	app.dispatch(findClosestBlob.action());
 	
 	//Dessin du vainqueur et du petit
 	app.dispatch(drawWinnerBlob.action());
