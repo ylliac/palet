@@ -17,7 +17,6 @@ module.exports.apply = function(state, action){
 function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	// Build a distance map to the reference blob center
 	// using Fast Marching algorithm
-	console.log("1");
 	
 	// get reference blob boundaries
 	var referenceBlob = boundaries[referenceBlobLabel];
@@ -52,10 +51,10 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	var distanceMap = [];
 	var x,y;
 	// start by labeling every pixel as infinite distance (-1)
-	for(x=0; x<width; x++){
+	for(x=0; x<width; x++) {
 		distanceMap.push([]);
-		for(y=0; y<height; y++){
-			distanceMap[x][y].push(-1);
+		for(y=0; y<height; y++) {
+			distanceMap[x].push(-1);
 		}
 	}
 		
@@ -67,24 +66,40 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	
 	// add neighbor elements
 	console.log("add reference blob center in queue");
-	referenceItem = {distance:0, x:Math.round(referenceBlob.xcenter), y:Math.round(referenceBlob.ycenter)};
+	var referenceItem = {distance:0, x:Math.round(referenceBlob.xcenter), y:Math.round(referenceBlob.ycenter)};
 	distanceMap[referenceItem.x][referenceItem.y] = referenceItem.distance;
 	for(x=-1; x<=1; x++) {
 		for(y=-1; y<=1; y++) {
 			// outside the image? skip
-			if( (Math.round(referenceBlob.xcenter+x) < 0 && Math.round(referenceBlob.xcenter+x)>=width) ||
-			    (Math.round(referenceBlob.ycenter+y) < 0 && Math.round(referenceBlob.ycenter+y)>=height) ) continue;
+			if( (referenceItem.x+x < 0 && referenceItem.x+x>=width) ||
+			    (referenceItem.y+y < 0 && referenceItem.y+y>=height) ) continue;
 			// add neighbor with updated distance and coordinates
-			queue.enq( {distance:neighborsDistances[x+1][y+1], x:Math.round(referenceBlob.xcenter+x), y:Math.round(referenceBlob.ycenter+y)} );
-			distanceMap[Math.round(referenceBlob.xcenter)][Math.round(referenceBlob.ycenter)] = 0;
+			var neighborItem = {distance:neighborsDistances[x+1][y+1], x:Math.round(referenceItem.x+x), y:Math.round(referenceItem.y+y)};
+			queue.enq( neighborItem );
+			distanceMap[neighborItem.x][neighborItem.y] = neighborItem.distance;
 		}
 	}
-	console.log(queue);
 	
 	// recursive distance computation
 	console.log("creation of distance map");
 	while(queue.size()>0) {
-		var current = queue.deq();
+		console.log(queue.size());
+		var currentItem = queue.deq();
+		for(x=-1; x<=1; x++) {
+			for(y=-1; y<=1; y++) {
+				// outside the image? skip
+				if( (currentItem.x+x < 0 && currentItem.x+x>=width) ||
+					(currentItem.y+y < 0 && currentItem.y+y>=height) ) continue;
+				// add neighbor with updated distance and coordinates
+				var neighborItem = {distance:neighborsDistances[x+1][y+1], x:Math.round(currentItem.x+x), y:Math.round(currentItem.y+y)};
+				// this pixel was already handled previously so skip it!
+				if(distanceMap[neighborItem.x][neighborItem.y]>=0) continue;
+				else {
+					queue.enq( neighborItem );
+					distanceMap[neighborItem.x][neighborItem.y] = neighborItem.distance;
+				}
+			}
+		}
 	}
 
 	/*
