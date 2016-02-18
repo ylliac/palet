@@ -3,12 +3,13 @@
 	with an immutable state (https://facebook.github.io/immutable-js/).
 */
 
-var _ = require("lodash");
-var fs = require("fs");
-var path = require("path");
-var Immutable = require('immutable');
-var Redux = require('redux');
-var thunkMiddleware = require('redux-thunk');
+const _ = require("lodash");
+const fs = require("fs");
+const path = require("path");
+const Immutable = require('immutable');
+const Redux = require('redux');
+const thunkMiddleware = require('redux-thunk');
+const Debug = require('redux-debug');
 
 //Create an initial state
 var initialState = Immutable.Map();
@@ -16,8 +17,6 @@ var initialState = Immutable.Map();
 //Create the reducer map
 var reducers = {};
 reducers.dispatch = function(state, action){
-	console.log('=> ' + action.type);
-
 	var reducer = reducers[action.type];
 	if(reducer){
 		return reducer(state, action);
@@ -31,7 +30,8 @@ var store = Redux.createStore(
 	reducers.dispatch, //dispatcher
 	initialState, //initial state
 	Redux.applyMiddleware(
-	    thunkMiddleware // async actions
+		thunkMiddleware, // async actions
+		Debug(console.log, {collapsed: true}) // Debug
 	));
 
 //Register reducer function

@@ -24,5 +24,3 @@ Dans une invite de commande, au même niveau que `package.json`, executer la com
 (ACY) A tester sur Redux :
 - https://github.com/qwtel/redux-switch-action : pour le mapping action - reducer
 - https://github.com/bingomanatee/redux-store : inspiration pour compléter app.js (chainage, addAction, etc.)
-- https://github.com/buunguyen/redux-freeze : à ajouter
-- https://github.com/LapwingLabs/redux-debug : à ajouter
