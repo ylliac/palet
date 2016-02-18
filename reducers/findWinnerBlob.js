@@ -12,7 +12,7 @@ module.exports.action = function(){
 
 module.exports.apply = function(state, action){
 	var winnerBlob = findWinnerBlob(state.get('blobBoundaries'), state.get('referenceBlob'));
-
+	console.log("Winner blob: ", winnerBlob, "!")
 	return state
 		.set('winnerBlob', winnerBlob);
 };

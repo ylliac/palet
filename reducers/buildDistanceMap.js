@@ -9,12 +9,17 @@ module.exports.action = function(){
 };
 
 module.exports.apply = function(state, action){
-	var map = buildDistanceMap(state.get('image').bitmap.data, state.get('image').bitmap.width, state.get('image').bitmap.height, state.get('blobBoundaries'), state.get('referenceBlob'));
+	var closestBlob = buildDistanceMap(state.get('image').bitmap.data, 
+		                       state.get('image').bitmap.width,
+							   state.get('image').bitmap.height,
+							   state.get('blobBoundaries'),
+							   state.get('referenceBlob'),
+							   state.get('blobMap'));
 	return state
-		.set('distanceMap', map);
+		.set('closestBlob', closestBlob);
 };
 
-function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
+function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel, blobMap){
 	// Build a distance map to the reference blob center
 	// using Fast Marching algorithm
 	
@@ -42,11 +47,12 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	console.log("build distance map");
 	var distanceMap = [];
 	var x,y;
+	var closestBlob = {x:-1, y:-1, label:-1, distance: -1};
 	// start by labeling every pixel as infinite distance (-1)
-	for(x=0; x<width; x++) {
+	for(y=0; y<height; y++) {
 		distanceMap.push([]);
-		for(y=0; y<height; y++) {
-			distanceMap[x].push(-1);
+		for(x=0; x<width; x++) {
+			distanceMap[y].push(-1);
 		}
 	}
 		
@@ -59,18 +65,22 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	// add neighbor elements
 	console.log("add reference blob center in queue");
 	var referenceItem = {distance:0, x:Math.round(referenceBlob.xcenter), y:Math.round(referenceBlob.ycenter)};
-	distanceMap[referenceItem.x][referenceItem.y] = referenceItem.distance;
-	for(x=-1; x<=1; x++) {
-		for(y=-1; y<=1; y++) {
+	distanceMap[referenceItem.y][referenceItem.x] = referenceItem.distance;
+	for(y=-1; y<=1; y++) {
+		for(x=-1; x<=1; x++) {
+			// skip reference item
+			if(y===0 && x===0) continue;
 			// outside the image? skip
-			if( (referenceItem.x+x < 0 && referenceItem.x+x>=width) ||
-			    (referenceItem.y+y < 0 && referenceItem.y+y>=height) ) continue;
+			var neighborX = Math.round(referenceItem.x) + x;
+			var neighborY = Math.round(referenceItem.y) + y;
+			if( neighborX < 0 || neighborX >= width ||
+			    neighborY < 0 || neighborY >= height ) continue;
 			// add neighbor with updated distance and coordinates
-			var neighborItem = {distance: neighborsDistances[x+1][y+1],
-			                    x: Math.round(referenceItem.x) + x,
-								y: Math.round(referenceItem.y) + y};
+			var neighborItem = {distance: referenceItem.distance + neighborsDistances[y+1][x+1],
+			                    x: neighborX,
+								y: neighborY};
 			queue.enq( neighborItem );
-			distanceMap[neighborItem.x][neighborItem.y] = neighborItem.distance;
+			distanceMap[neighborItem.y][neighborItem.x] = neighborItem.distance;
 		}
 	}
 	
@@ -79,28 +89,45 @@ function buildDistanceMap(image, width, height, boundaries, referenceBlobLabel){
 	while(queue.size()>0) {
 		console.log(queue.size());
 		var currentItem = queue.deq();
-		for(x=-1; x<=1; x++) {
+		// did we find a blob (different from reference one)?
+		if( blobMap[currentItem.y][currentItem.x] > 0 && 
+			blobMap[currentItem.y][currentItem.x]!=referenceBlobLabel) {
+			// so this is the closest blob
+			var closestBlob = {x: currentItem.x, y: currentItem.y,
+			                   label: blobMap[currentItem.y][currentItem.x],
+							   distance: currentItem.distance};
+			console.log("Closest blob is :", closestBlob, "!");
+			// return the label of the closest blob and quit
+			return closestBlob;
+		}
+		// else continue looking at neighbors
+		else {
+			// browse neighbors
 			for(y=-1; y<=1; y++) {
-				// outside the image? skip
-				var neighborX = currentItem.x + x;
-				var neighborY = currentItem.y + y;
-				if( neighborX < 0 || neighborX>=width ||
-					neighborY < 0 || neighborY>=height ) continue;
-				// add neighbor with updated distance and coordinates
-				var neighborItem = {distance: currentItem.distance + neighborsDistances[x+1][y+1],
-				                    x: currentItem.x + x,
-									y: currentItem.y + y};
-				// this pixel was already handled previously so skip it!
-				if(distanceMap[neighborItem.x][neighborItem.y]>=0) continue;
-				else {
-					queue.enq( neighborItem );
-					distanceMap[neighborItem.x][neighborItem.y] = neighborItem.distance;
+				for(x=-1; x<=1; x++) {
+					// skip current item
+					if(y===0 && x===0) continue;
+					// outside the image? skip
+					var neighborX = currentItem.x + x;
+					var neighborY = currentItem.y + y;
+					if( neighborX < 0 || neighborX>=width ||
+						neighborY < 0 || neighborY>=height ) continue;
+					// add neighbor with updated distance and coordinates
+					var neighborItem = {distance: currentItem.distance + neighborsDistances[y+1][x+1],
+										x: currentItem.x + x,
+										y: currentItem.y + y};
+					// this pixel was already handled previously so skip it!
+					if(distanceMap[neighborItem.y][neighborItem.x]>=0) continue;
+					else {
+						queue.enq( neighborItem );
+						distanceMap[neighborItem.y][neighborItem.x] = neighborItem.distance;
+					}
 				}
 			}
 		}
 	}
-	// TODO: add blobMap and check whenwe target the closest blob during neighbor aggregation
+	// TODO: factorize neighbor browsing
 	console.log("build distance map done!");
 	
-	return distanceMap;
+	return closestBlob;
 }
