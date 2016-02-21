@@ -15,6 +15,7 @@
     "lodash": "^4.1.0",
     "priorityqueuejs": "^1.0.0",
     "redux": "^3.1.6",
+    "redux-actions": "^0.9.1",
     "redux-debug": "^1.0.3",
     "redux-thunk": "^1.0.3"
   }

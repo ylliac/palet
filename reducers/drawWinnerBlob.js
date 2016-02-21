@@ -1,14 +1,6 @@
 var _ = require('lodash');
 
-var ACTION_TYPE = 'DRAW_WINNER_BLOB';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = DRAW_WINNER_BLOB;
 
 module.exports.apply = function(state, action){
 

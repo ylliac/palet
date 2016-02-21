@@ -1,12 +1,4 @@
-var ACTION_TYPE = 'FIND_BLOB_BOUNDARIES';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = FIND_BLOB_BOUNDARIES;
 
 module.exports.apply = function(state, action){
 	

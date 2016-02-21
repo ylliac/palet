@@ -1,12 +1,4 @@
-var ACTION_TYPE = 'DRAW_BLOB_BOUNDARIES';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = DRAW_BLOB_BOUNDARIES;
 
 module.exports.apply = function(state, action){
 

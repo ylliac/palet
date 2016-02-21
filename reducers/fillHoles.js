@@ -1,15 +1,6 @@
+module.exports.type = FILL_HOLES;
+
 //ACY 14/02 A améliorer
-
-var ACTION_TYPE = 'FILL_HOLES';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(minSize){
-	return {
-		type: ACTION_TYPE,
-		minSize: minSize
-	};
-};
 
 module.exports.apply = function(state, action){
 	var pixelsToFill = fillHoles(state.get('image').bitmap.width, state.get('image').bitmap.height, state.get('image').bitmap.data);

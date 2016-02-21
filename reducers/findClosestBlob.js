@@ -1,13 +1,7 @@
 // import 'priorityqueue.js' library
 var PriorityQueue = require('priorityqueuejs');
 
-var ACTION_TYPE = 'FIND_CLOSEST_BLOB';
-module.exports.type = ACTION_TYPE;
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = FIND_CLOSEST_BLOB;
 
 module.exports.apply = function(state, action){
 	var closestBlob = findClosestBlob(state.get('image').bitmap.width,

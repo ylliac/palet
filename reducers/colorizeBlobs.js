@@ -1,12 +1,4 @@
-var ACTION_TYPE = 'COLORIZE_BLOBS';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = COLORIZE_BLOBS;
 
 module.exports.apply = function(state, action){
 

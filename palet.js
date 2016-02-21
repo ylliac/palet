@@ -3,45 +3,10 @@
 */
 
 var app = require('./app');
+require('./actions');
 
-//CHARGEMENT DES ACTIONS
-//TODO ACY Charger le répertoire 'reducers' avec registerReducerDirectory
-
-var loadImageFile = require('./reducers/loadImageFile');
-var loadImage = require('./reducers/loadImage');
-var writeImage = require('./reducers/writeImage');
-var greyscale = require('./reducers/greyscale');
-var posterize = require('./reducers/posterize');
-var threshold = require('./reducers/threshold');
-var fillHoles = require('./reducers/fillHoles');
-var eliminateNoisePixels = require('./reducers/eliminateNoisePixels');
-var findBlobs = require('./reducers/findBlobs');
-var findBlobBoundaries = require('./reducers/findBlobBoundaries');
-var eliminateSmallBlobs = require('./reducers/eliminateSmallBlobs');
-var colorizeBlobs = require('./reducers/colorizeBlobs');
-var drawBlobBoundaries = require('./reducers/drawBlobBoundaries');
-var findReferenceBlob = require('./reducers/findReferenceBlob');
-var findWinnerBlob = require('./reducers/findWinnerBlob');
-var drawWinnerBlob = require('./reducers/drawWinnerBlob');
-var findClosestBlob = require('./reducers/findClosestBlob');
-
-app.registerReducer(loadImageFile);
-app.registerReducer(loadImage);
-app.registerReducer(writeImage);
-app.registerReducer(greyscale);
-app.registerReducer(posterize);
-app.registerReducer(threshold);
-app.registerReducer(fillHoles);
-app.registerReducer(eliminateNoisePixels);
-app.registerReducer(findBlobs);
-app.registerReducer(findBlobBoundaries);
-app.registerReducer(eliminateSmallBlobs);
-app.registerReducer(colorizeBlobs);
-app.registerReducer(drawBlobBoundaries);
-app.registerReducer(findReferenceBlob);
-app.registerReducer(findWinnerBlob);
-app.registerReducer(drawWinnerBlob);
-app.registerReducer(findClosestBlob);
+//CHARGEMENT DES REDUCERS
+app.registerReducerDirectory('./reducers');
 
 //JEUX DE TEST
 
@@ -88,54 +53,50 @@ var thresholdValue = 100;
 //ALGORITHME
 
 //On commence par charger l'image
-app.dispatch(loadImageFile.action(imageFile))
+app.doAsync(LOAD_IMAGE_FILE, imageFile)
 .then(function(){
-	app.dispatch(writeImage.action("output/1-original.jpg"));
+	app
+	.do(WRITE_IMAGE, "output/1-original.jpg")
 
 	//Filtre noir et blanc
-	app.dispatch(greyscale.action());
-	app.dispatch(writeImage.action("output/2-greyscale.jpg"));
-	
-	//Posterize
-	//ACY : Désactivé momentanément (ou pas), a tendance à ajouter les ombres des palets aux blobs
-	//app.dispatch(posterize.action());
-	//app.dispatch(writeImage.action("output/3-posterize.jpg"));
+	.do(GREYSCALE)
+	.do(WRITE_IMAGE,"output/2-greyscale.jpg")
 	
 	//Seuillage
-	app.dispatch(threshold.action(thresholdValue));
-	app.dispatch(writeImage.action("output/4-threshold.jpg"));
+	.do(THRESHOLD, thresholdValue)
+	.do(WRITE_IMAGE, "output/4-threshold.jpg")
 	
 	//Remplissage des trous créés par le seuillage
-	app.dispatch(fillHoles.action());
-	app.dispatch(writeImage.action("output/5-fillHoles.jpg"));	
+	.do(FILL_HOLES)
+	.do(WRITE_IMAGE, "output/5-fillHoles.jpg")
 	
 	//Elimination du bruit (rayures de la planche)
-	app.dispatch(eliminateNoisePixels.action(minSize));
-	app.dispatch(writeImage.action("output/6-noise.jpg"));
+	.do(ELIMINATE_NOISE_PIXELS, minSize)
+	.do(WRITE_IMAGE, "output/6-noise.jpg")
 	
 	//Recherche des blobs et de leur emprise
-	app.dispatch(findBlobs.action());
-	app.dispatch(findBlobBoundaries.action());
+	.do(FIND_BLOBS)
+	.do(FIND_BLOB_BOUNDARIES)
 
 	//Elimination des petits blobs
-	app.dispatch(eliminateSmallBlobs.action(minSize));
+	.do(ELIMINATE_NOISE_PIXELS, minSize)
 
 	//DEBUG : Colorisation des blobs
-	// app.dispatch(colorizeBlobs.action());
+	// .do(COLORIZE_BLOBS)
 	//DEBUG : Dessin des emprises des blobs
-	// app.dispatch(drawBlobBoundaries.action());
-	// app.dispatch(writeImage.action("output/7-blobs.jpg"));
+	// .do(DRAW_BLOB_BOUNDARIES)
+	// .do(WRITE_IMAGE, "output/7-blobs.jpg")
 	
 	//Recherche du petit
-	app.dispatch(findReferenceBlob.action());
+	.do(FIND_REFERENCE_BLOB)
 	
 	//Find the closest blob and its closest pixel position
-	app.dispatch(findClosestBlob.action());
+	.do(FIND_CLOSEST_BLOB)
 	
 	//Dessin du vainqueur et du petit
-	app.dispatch(drawWinnerBlob.action());
+	.do(DRAW_WINNER_BLOB)
 
-	app.dispatch(writeImage.action("output/8-result.jpg"));
+	.do(WRITE_IMAGE, "output/8-result.jpg");
 });
 
 //TODO ACY

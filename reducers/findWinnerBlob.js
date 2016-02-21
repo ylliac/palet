@@ -1,14 +1,6 @@
 //ACY 07/02 Se baser sur le centre du blob ne marche pas quand on a un blob qui englobe deux palets collés
-
-var ACTION_TYPE = 'FIND_WINNER_BLOB';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+//ACY 20/02 Plus très utile avec FIND_CLOSEST_BLOB de Flo, supprimer
+module.exports.type = FIND_WINNER_BLOB;
 
 module.exports.apply = function(state, action){
 	var winnerBlob = findWinnerBlob(state.get('blobBoundaries'), state.get('referenceBlob'));

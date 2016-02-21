@@ -1,12 +1,4 @@
-var ACTION_TYPE = 'POSTERIZE';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(){
-	return {
-		type: ACTION_TYPE
-	};
-};
+module.exports.type = POSTERIZE;
 
 module.exports.apply = function(state, action){
 	return state

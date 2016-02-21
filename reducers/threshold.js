@@ -1,19 +1,10 @@
 var Jimp = require("jimp");
 
-var ACTION_TYPE = 'THRESHOLD';
-
-module.exports.type = ACTION_TYPE;
-
-module.exports.action = function(thresholdValue){
-	return {
-		type: ACTION_TYPE,
-		thresholdValue: thresholdValue
-	};
-};
+module.exports.type = THRESHOLD;
 
 module.exports.apply = function(state, action){
 	
-	var scanner = threshold(action.thresholdValue);
+	var scanner = threshold(action.payload);
 
 	return state
 		.set('image', state.get('image').scan(0, 0, state.get('image').bitmap.width, state.get('image').bitmap.height, scanner));
