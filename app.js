@@ -55,12 +55,11 @@ app.registerReducer = function(reducer){
 };
 
 //Register reducer directory
-app.registerReducerDirectory = function(directory){
-	var rootDir = path.dirname(process.mainModule.filename);
-	var reducerFiles = fs.readdirSync(path.join(rootDir, directory));
+app.registerReducerDirectory = function(absoluteDirectory){
+	var reducerFiles = fs.readdirSync(absoluteDirectory);	
 
 	_.each(reducerFiles, reducerFile => {
-		var reducer = require(path.join(rootDir, directory, reducerFile));
+		var reducer = require(path.join(absoluteDirectory, reducerFile));
 		app.registerReducer(reducer);
 	});
 

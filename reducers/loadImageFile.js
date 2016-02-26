@@ -12,6 +12,9 @@ module.exports.action = function(imageFileName){
 				dispatch(
 					createAction(LOAD_IMAGE)({imageFileName, image})
 				);
+			})
+			.catch(function (err) {
+			    console.error(err);
 			});
 	};
 };
