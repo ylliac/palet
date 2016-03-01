@@ -19,3 +19,7 @@ Dans une invite de commande, au même niveau que `package.json`, executer la com
 Dans une invite de commande, au même niveau que `package.json`, executer la commande suivante :
 
 > npm start
+
+
+
+(TODO ACY : Tester PouchDB pour stocker le store ? Ajouter Chai-immutable)
