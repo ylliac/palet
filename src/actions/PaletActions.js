@@ -1,17 +1,8 @@
 import * as types from '../constants/PaletActionTypes';
 
-//TODO
-
-//Examples
-/*export function addTodo(text) {
+export function runDetection(imageFile) {
   return {
-    type: types.ADD_TODO,
-    text
+    type: types.RUN_DETECTION,
+    imageFile
   };
-}*/
-/*export function clearMarked() {
-  return {
-    type: types.CLEAR_MARKED
-  };
-}*/
-
+}

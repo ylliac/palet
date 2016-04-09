@@ -1,23 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import { createStore, combineReducers, compose } from 'redux';
-import { devTools, persistState } from 'redux-devtools';
-import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 import { Provider } from 'react-redux';
-import * as reducers from '../reducers';
+import configureStore from '../store/configureStore';
 
-const finalCreateStore = compose(
-  devTools(),
-  persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
-)(createStore);
+// TODO Should be taken off in production
+import DevTools from '../containers/DevTools.jsx';
 
-const reducer = combineReducers(reducers);
-const store = finalCreateStore(reducer);
-
-if (!__CORDOVA__ && module.hot) {
-  module.hot.accept('../reducers', () =>
-    store.replaceReducer(combineReducers(require('../reducers')))
-  );
-}
+const store = configureStore();
 
 export default class App extends Component {
   static propTypes = {
@@ -29,13 +17,7 @@ export default class App extends Component {
         <Provider store={store}>
           { this.props.children }
         </Provider>
-        { __DEVTOOLS__ && <DebugPanel top right bottom>
-          <DevTools
-            store={store}
-            monitor={LogMonitor}
-            visibleOnLoad={true}
-          />
-        </DebugPanel> }
+        { __DEVTOOLS__ && <DevTools /> }
       </div>
     );
   }

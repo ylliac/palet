@@ -28,7 +28,8 @@ var globals = {
     __PROD__: JSON.stringify(__PROD__),
     __CORDOVA__: JSON.stringify(__CORDOVA__),
     __DEVTOOLS__: JSON.stringify(__DEVTOOLS__),
-    __CLIENT__: undefined
+    __CLIENT__: undefined,
+    __SERVER__: undefined
   };
 
 //Webpack plugins
@@ -68,6 +69,9 @@ var webpackModule = {
   }, {
     test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
     loader: "file-loader"
+  }, {
+    test: /\.json/,
+    loader: 'json'
   }]
 };
 
@@ -87,7 +91,8 @@ module.exports = {
   },
   plugins: webpackPlugins.concat([
     new webpack.DefinePlugin(extend(globals, {
-      __CLIENT__: JSON.stringify(true)
+      __CLIENT__: JSON.stringify(true),
+      __SERVER__: JSON.stringify(false)
     })),
     new HtmlWebpackPlugin({
       minify: {},
@@ -102,5 +107,10 @@ module.exports = {
     }
   })] : []),
   module: webpackModule,
-  exclude: /node_modules/
+  exclude: /node_modules/,
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 };

@@ -4,7 +4,7 @@ TODO :
 - Tester PouchDB pour stocker le store ?
 - Ajouter Chai-immutable
 - Créer l'appli Android
-- Ajouter MaterialUI
+- Ajouter MaterialUI (http://www.material-ui.com/#/)
 - Ajouter Webpack
 - Ajouter React
 
@@ -30,6 +30,8 @@ Dans une invite de commande, au même niveau que `package.json`, executer une de
 - ```npm run build``` : Build le projet (single html file and single js file) en mode dev.
 - ```npm run build:prod``` : Build le projet (single html file and single js file) en mode production.
 - ```npm run build:cordova``` : Build le projet (single html file and single js file) en mode Cordova.
+- ```npm run start``` - démarre un serveur avec react model replacement et devtools.
+- ```npm run start:prod``` - démarre un serveur avec react model replacement et minification du fichier html et js.
 
 # Application Android (TODO outdated)
 
@@ -64,4 +66,5 @@ Dans le répertoire paletApp :
 
 https://github.com/unimonkiez/react-cordova-boilerplate
 http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#writing-the-application-logic-with-pure-functions
+https://github.com/gaearon/redux-devtools/blob/master/docs/Walkthrough.md
 
