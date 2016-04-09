@@ -3,34 +3,35 @@
 TODO :  
 - Tester PouchDB pour stocker le store ?
 - Ajouter Chai-immutable
-- Cr�er l'appli Android
+- Créer l'appli Android
+- Ajouter MaterialUI
+- Ajouter Webpack
+- Ajouter React
 
 ## Mettre en place l'environnement
 
-Installer Git pour récupérer les sources.
+- Installer Node et Git
+- Récupérez les sources
+- ```npm install``` : télécharge les dépendances
+- ```npm install -g cordova``` : installe Cordova
+  
+Si vous utilisez l'IDE Sublime Text 3, installez les packages suivants :
 
-Installer NodeJS pour exécute l'appli.
-
-Installer Iron-Node pour débugger.
-
-## Récupérer les dépendances
-
-Dans une invite de commande, au même niveau que `package.json`, executer la commande suivante :
-
-> npm install
+- ```SublimeLinter``` et ```SublimeLinter-contrib-eslint``` : Vérification syntaxique avec ESLint
+- ```Babel``` : Coloration syntaxique des fichiers JS et JSX de React (voir https://github.com/babel/babel-sublime pour la configuration)
+- ```Sass``` : Coloration syntaxique des fichiers SASS
 
 ## Comment exécuter ?
 
-Dans une invite de commande, au même niveau que `package.json`, executer la commande suivante :
+Dans une invite de commande, au même niveau que `package.json`, executer une des commandes suivantes :
 
-> npm start
+- ```npm run lint``` : Lance ESLint sur le dossier src.
+- ```npm run test``` : Lance les tests.
+- ```npm run build``` : Build le projet (single html file and single js file) en mode dev.
+- ```npm run build:prod``` : Build le projet (single html file and single js file) en mode production.
+- ```npm run build:cordova``` : Build le projet (single html file and single js file) en mode Cordova.
 
-
-# Application Android
-
-## Installer Cordova
-
-> npm install -g cordova
+# Application Android (TODO outdated)
 
 ## Lancer l'application dans le navigateur
 
@@ -58,4 +59,9 @@ Dans le répertoire paletApp :
 (Relancer la commande sans fermer l'émulateur si ca bloque)
 
 
+
+# SOURCES 
+
+https://github.com/unimonkiez/react-cordova-boilerplate
+http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#writing-the-application-logic-with-pure-functions
 

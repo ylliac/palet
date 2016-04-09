@@ -3,7 +3,7 @@ var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 chai.should();
 
-var palet = require('../palet');
+var palet = require('../src/palet');
 
 describe('Detection du palet le plus proche', function() {
 
@@ -11,7 +11,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample9.png";
+			var imageFile = "../images/sample9.png";
 			var minSize = 10;
 			var thresholdValue = 100;
 
@@ -24,7 +24,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample3.jpg"; 
+			var imageFile = "../images/sample3.jpg"; 
 			var minSize = 10;  
 			var thresholdValue = 120;
 
@@ -39,7 +39,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample.png";
+			var imageFile = "../images/sample.png";
 			var minSize = 15;
 			var thresholdValue = 100;
 
@@ -52,7 +52,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample5.jpeg";
+			var imageFile = "../images/sample5.jpeg";
 			var minSize = 15;
 			var thresholdValue = 100;
 
@@ -65,7 +65,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample1.jpg";
+			var imageFile = "../images/sample1.jpg";
 			var minSize = 15;
 			var thresholdValue = 200;
 
@@ -80,7 +80,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample7.jpg";
+			var imageFile = "../images/sample7.jpg";
 			var minSize = 15;
 			var thresholdValue = 100;
 
@@ -95,7 +95,7 @@ describe('Detection du palet le plus proche', function() {
 		
 		it('doit detecter le bon palet', function () {
 
-			var imageFile = "images/sample15.jpg";
+			var imageFile = "../images/sample15.jpg";
 			var minSize = 15;
 			var thresholdValue = 110;
 

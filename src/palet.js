@@ -10,7 +10,7 @@ var run = function(imageFile, minSize, thresholdValue){
 
 	//On créé le répertoire du résultat
 	var basename = path.basename(imageFile, path.extname(imageFile));
-	var outputDir = path.resolve(__dirname, 'output', basename);
+	var outputDir = path.resolve(__dirname, '../output', basename);
 	try {
 	    fs.accessSync(outputDir, fs.F_OK);
 	} catch (e) {

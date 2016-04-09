@@ -1,6 +1,6 @@
 # ignore node.js extra modules
 node_modules/
-paletApp/platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties
-paletApp/platforms/android/
-paletApp/plugins/
-paletApp/platforms/browser/
+platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties
+platforms/android/
+plugins/
+platforms/browser/
