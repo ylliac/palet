@@ -13,7 +13,7 @@ export default class MainSection extends Component {
     return (
       <section className={paletStyle.main}>
         <div>Hello world</div>
-        <div>Debug: There is {actions.length} actions registered</div>
+        <div>Debug: There is {Object.keys(actions).length} actions registered</div>
       </section>
     );
   }

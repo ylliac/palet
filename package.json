@@ -18,7 +18,7 @@
     },
     "__CORDOVA__": {
       "__MINIFICATION__": true,
-      "__SOURCEMAP__": false,
+      "__SOURCEMAP__": true,
       "__DEVTOOLS__": false
     }
   },

@@ -5,8 +5,6 @@ TODO :
 - Ajouter Chai-immutable
 - Créer l'appli Android
 - Ajouter MaterialUI (http://www.material-ui.com/#/)
-- Ajouter Webpack
-- Ajouter React
 
 ## Mettre en place l'environnement
 
@@ -29,8 +27,7 @@ Dans une invite de commande, au même niveau que `package.json`, executer une de
 - ```npm run test``` : Lance les tests.
 - ```npm run build``` : Build le projet (single html file and single js file) en mode dev.
 - ```npm run build:prod``` : Build le projet (single html file and single js file) en mode production.
-- ```npm run build:cordova``` : Build le projet (single html file and single js file) en mode Cordova.
-- ```npm run start``` - démarre un serveur avec react model replacement et devtools.
+- ```npm run start``` - démarre un serveur avec Hot Module Replacement et devtools.
 - ```npm run start:prod``` - démarre un serveur avec react model replacement et minification du fichier html et js.
 
 
@@ -47,14 +44,24 @@ La page s'est remise à jour sans que vous ayez eu besoin de rafraichir votre na
 
 Encore mieux ? Ajoutez ```{toto}``` dans l'un des textes et sauvegardez. Bien sur cette variable toto n'existe pas et la page rouge qui vient de s'afficher dans votre navigateur est la pour vous le rappeler !  
 
+## Dev Tools
 
-# Application Android (TODO outdated)
+Ce sont les outils de developpement Redux qui permettent de visualiser l'évolution de l'état directement dans le navigateur.
+Pour les afficher / masquer, tapez ```alt + h```. 
 
-## Lancer l'application dans le navigateur
 
-Dans le répertoire paletApp :
+# Application Android 
 
-> cordova run browser
+## Comment exécuter ?
+
+Dans une invite de commande, au même niveau que `package.json`, executer une des commandes suivantes :
+
+- ```npm run build:cordova``` : Build le projet (single html file and single js file) en mode Cordova.
+- ```cordova run browser``` : Lance l'application dans le navigateur.
+- ```cordova run android``` : Lance l'application dans l'émulateur android (*).
+
+(*) Relancer la commande sans fermer l'émulateur si ca bloque
+
 
 ## Mettre en place l'environnement pour Android
 
@@ -66,14 +73,6 @@ Dans le répertoire paletApp :
 - Setter la variable JAV_HOME et ANDROID_HOME sur le dossier d'installation du JDK et du SDK Android
 - Ajouter %ANDROID_HOME%\platform-tools et %ANDROID_HOME%\tools à la variable PATH 
 - Verifier que le projet peut se lancer sous Android en tapant `cordova run android --list`
-
-## Lancer l'application sur le simulateur Android
-
-Dans le répertoire paletApp :
-
-> cordova run android
-
-(Relancer la commande sans fermer l'émulateur si ca bloque)
 
 
 
