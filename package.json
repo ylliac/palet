@@ -34,7 +34,6 @@
   "dependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
-    "history": "^2.0.1",
     "immutable": "^3.7.6",
     "jimp": "^0.2.21",
     "lodash": "^4.1.0",

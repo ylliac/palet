@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import Router, { Route } from 'react-router';
-import { createHistory } from 'history';
+import { Router, Route, browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import PaletApp from './PaletApp.jsx';
 
@@ -14,12 +13,6 @@ class AppRoute extends Component {
 
     this._isCheckingInitialLogIn = true;
     this._shouldRouterUpdate = true;
-
-    const history = createHistory();
-
-    this.state = {
-      history
-    };
   }
   componentDidMount() {
     this._shouldRouterUpdate = false;
@@ -35,10 +28,8 @@ class AppRoute extends Component {
   }
 
   render() {
-    const { history } = this.state;
-
     return (
-      <Router history={history}>
+      <Router history={browserHistory}>
         <Route path="/main" component={PaletApp} />
         <Route path="*" onEnter={::this.handleRedirect} />
       </Router>

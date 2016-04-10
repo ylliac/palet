@@ -33,6 +33,21 @@ Dans une invite de commande, au même niveau que `package.json`, executer une de
 - ```npm run start``` - démarre un serveur avec react model replacement et devtools.
 - ```npm run start:prod``` - démarre un serveur avec react model replacement et minification du fichier html et js.
 
+
+## Hot Module Replacement
+
+Derrière ce nom se cache un truc de ouf.
+
+Lancez l'application avec ```npm run start```, ouvrez votre navigateur à l'adresse ```http://localhost:3000``` et mettez le sur la moitié gauche de votre écran (touche windows + flèche gauche).
+
+Ouvrez votre IDE, ouvrez le fichier ```MainSection.jsx``` et mettez la fenêtre sur la partie droite.
+
+Prêts ? Maintenant dans ```MainSection.jsx```modifiez un des textes, sauvegardez et attendez quelques secondes... magie !
+La page s'est remise à jour sans que vous ayez eu besoin de rafraichir votre navigateur !
+
+Encore mieux ? Ajoutez ```{toto}``` dans l'un des textes et sauvegardez. Bien sur cette variable toto n'existe pas et la page rouge qui vient de s'afficher dans votre navigateur est la pour vous le rappeler !  
+
+
 # Application Android (TODO outdated)
 
 ## Lancer l'application dans le navigateur
@@ -66,5 +81,6 @@ Dans le répertoire paletApp :
 
 https://github.com/unimonkiez/react-cordova-boilerplate
 http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#writing-the-application-logic-with-pure-functions
+https://github.com/reactjs/react-router
 https://github.com/gaearon/redux-devtools/blob/master/docs/Walkthrough.md
 

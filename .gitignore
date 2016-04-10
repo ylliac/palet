@@ -4,3 +4,4 @@ platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties
 platforms/android/
 plugins/
 platforms/browser/
+www/

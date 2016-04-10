@@ -59,8 +59,11 @@ app.registerReducerDirectory = function(absoluteDirectory){
 	var reducerFiles = fs.readdirSync(absoluteDirectory);	
 
 	_.each(reducerFiles, reducerFile => {
-		var reducer = require(path.join(absoluteDirectory, reducerFile));
-		app.registerReducer(reducer);
+		console.log('DEBUG', reducerFile);
+		if(!reducerFile.endsWith('index.js') && !reducerFile.endsWith('runDetection.js')){
+			var reducer = require(path.join(absoluteDirectory, reducerFile));
+			app.registerReducer(reducer);	
+		}
 	});
 
 	//Chainable

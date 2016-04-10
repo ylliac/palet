@@ -81,7 +81,7 @@ module.exports = {
   entry: ['./src/entry-points/Client.jsx'].concat(
     // Don't add webpack dev server sources in cordova
     __CORDOVA__ ? [] : [
-    'webpack-dev-server/client?',
+    'webpack-dev-server/client?http://localhost:3000/',
     'webpack/hot/only-dev-server'
   ]),
   output: {
