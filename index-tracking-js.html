@@ -11,46 +11,48 @@
     <h1>Who's the closest?</h1>
 
     <label for="files">Your image:</label>
-    <input type="file" id="inputFile" onchange="previewImage(this.files); findClosest(this)" />
+    <input type="file" id="inputFile" onchange="previewImage(this.files); findClosest(this.files)" />
     <br>
-    <label for="imagePreview">Image preview:</label>
     <br>
-    <img id="imagePreview" />
-    <img id="imageResult" />
+    <canvas id="canvasPreview" width="400" height="400"></canvas>
+    <canvas id="canvasResult" width="400" height="400"></canvas>
 
     <script>
         // Preview input image
         function previewImage(files) {
             console.log("Previewing input image...");
-            // initialize image reader
-            var reader = new FileReader();
 
-            reader.onload = function(e) {
-                // get loaded data and render thumbnail into image element
-                document.getElementById("imagePreview").src = e.target.result;
-            };
+            var canvas = document.getElementById("canvasPreview");
+            var context = canvas.getContext("2d");
 
-            // read the image file as a data URL
-            reader.readAsDataURL(files[0]);
+            var image = new Image();
+            image.src = "images/" + files[0]["name"];
+
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
             console.log("Done!");
         };
 
         // Find closest palet
-        function findClosest(doc) {
+        function findClosest(files) {
             console.log("Looking for closest palet...")
-            var greyTracker = new tracking.Image.grayscale(pixels, width, height, fillRGBA);
 
-            greyTracker.on('track', function(event) {
-                if (event.data.length === 0) {
-                    // No colors were detected in this frame.
-                } else {
-                    event.data.forEach(function(rect) {
-                        console.log(rect.x, rect.y, rect.height, rect.width, rect.color);
-                    });
-                }
-            });
+            var canvas = document.getElementById("canvasResult");
+            var context = canvas.getContext("2d");
 
-            tracking.track('#imagePreview', greyTracker);
+            var image = new Image();
+            image.src = "images/" + files[0]["name"];
+
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            var gray = tracking.Image.grayscale(imageData.data, canvas.width, canvas.height);
+            // tracking.ViolaJones.detect(gray, width, height, initialScale, scaleFactor, stepSize, edgesDensity, classifier);
+
+            // update canvas result
+            imageData.data = gray;
+            context.putImageData(imageData, 0, 0);
+
             console.log("Done!")
         };
     </script>
