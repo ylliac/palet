@@ -74,6 +74,20 @@ Dans une invite de commande, au même niveau que `package.json`, executer une de
 - Ajouter %ANDROID_HOME%\platform-tools et %ANDROID_HOME%\tools à la variable PATH 
 - Verifier que le projet peut se lancer sous Android en tapant `cordova run android --list`
 
+## Je n'arrive pas à lancer l'application sur mon téléphone
+
+Dans une invite de commande, tapez ```adb devices -l```.
+Si la liste des devices attachés est vide, votre téléphone n'est pas reconnu.
+
+Commencez par activer les options développeurs sur votre téléphone et activez le déboguage USB (Google it).
+
+Si cela ne marche toujours pas, allez dans le gestionnaire de périphériques de Windows : il se peut que votre téléphone soit marqué d'une icône warning indiquant que les drivers n'ont pas été trouvé.
+Dans ce cas, tapez dans une invite de commande ```android```. Dans la liste des packages proposée, installez `Extras / Google USB driver`.
+Une fois terminé, retournez dans le gestionnaire de périphériques, faites un clic droit sur le téléphone et cliquez sur `mettre à jour le pilote`.
+Choisissez l'option `Rechercher un pilote sur mon ordinateur` et sélectionnez le chemin suivant :
+```[SDK Android]/extras/google/usb_driver``` (par exemple, ```C:/Users/MyUser/AppData/Local/Android/Sdk/extras/google/usb_driver```) et validez.
+
+Retapez la commande ```adb devices -l``` dans l'invite de commande, votre téléphone devrait s'y trouver.
 
 
 # SOURCES 
