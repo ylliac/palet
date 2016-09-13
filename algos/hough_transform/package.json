@@ -1,0 +1,16 @@
+{
+  "name": "hough_transform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "demo.js",
+  "scripts": {
+    "start": "node demo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^0.2.27",
+    "sobel": "0.0.7"
+  }
+}

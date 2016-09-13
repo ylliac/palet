@@ -1,0 +1,25 @@
+{
+  "name": "palet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "mocha --reporter spec test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
+    "immutable": "^3.7.6",
+    "jimp": "^0.2.21",
+    "lodash": "^4.1.0",
+    "mocha": "^2.4.5",
+    "priorityqueuejs": "^1.0.0",
+    "redux": "^3.1.6",
+    "redux-actions": "^0.9.1",
+    "redux-debug": "^1.0.3",
+    "redux-thunk": "^1.0.3"
+  }
+}
