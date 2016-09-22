@@ -2,22 +2,89 @@ var Jimp = require('jimp')
 
 var HoughCircles = {};
 
-var r;
-var input;
-var accSize;
-var acc;
+HoughCircles.process = function(image, circleCount, threshold) {
 
-HoughCircles.setCircleCount = function(circleCount) {
-	accSize=circleCount;		
+	var mergedAcc = [];
+
+	
+	var mergedAcc = []
+	for (var radius = 3; radius < 16; radius++) {
+		var acc = this.computeAcc(image, radius) 
+		var prunedAcc = this.pruneAcc(image, acc, threshold) 
+
+		mergedAcc = this.mergeAcc(image, mergedAcc, prunedAcc)
+	}
+
+	var max = this.findMaxAcc(image, mergedAcc)
+	var normalizedAcc = this.normalizeAcc(image, mergedAcc, max)
+	var r = 4 //TODO
+	this.findMaxima(image, r, normalizedAcc, circleCount)
+
+	console.log('done')
 }
 
-HoughCircles.process = function(image, radius) {
+HoughCircles.initAcc = function(image) {
 	
 	var width = image.bitmap.width
 	var height = image.bitmap.height
 
 	// for polar we need accumulator of 180degress * the longest length in the image
-	acc = []
+	var acc = []
+	for(var x=0;x<width;x++) {
+		for(var y=0;y<height;y++) {
+			acc[x + width*y] = 0;
+		}
+	}
+
+	return acc			
+}
+
+HoughCircles.pruneAcc = function(image, acc, threshold) {
+	
+	var width = image.bitmap.width
+	var height = image.bitmap.height
+
+	// for polar we need accumulator of 180degress * the longest length in the image
+	var prunedAcc = []
+	for(var x=0;x<width;x++) {
+		for(var y=0;y<height;y++) {
+			var value = acc[x + width*y]
+			prunedAcc[x + width*y] = value > threshold ? value : 0
+		}
+	}
+
+	return prunedAcc			
+}
+
+HoughCircles.mergeAcc = function(image, currentAcc, accToMerge) {
+	
+	var width = image.bitmap.width
+	var height = image.bitmap.height
+
+	// for polar we need accumulator of 180degress * the longest length in the image
+	var mergedAcc = []
+
+	if(currentAcc && currentAcc.length > 0){
+		for(var x=0;x<width;x++) {
+			for(var y=0;y<height;y++) {
+				mergedAcc[x + width*y] = Math.max(currentAcc[x + width*y],accToMerge[x + width*y]);
+			}
+		}
+	}
+	else{
+		mergedAcc = accToMerge
+	}
+
+	return mergedAcc			
+}
+
+HoughCircles.computeAcc = function(image, radius) {
+	
+	var width = image.bitmap.width
+	var height = image.bitmap.height
+
+	// for polar we need accumulator of 180degress * the longest length in the image
+	var acc = []
 	for(var x=0;x<width;x++) {
 		for(var y=0;y<height;y++) {
 			acc[x + width*y] =0 ;
@@ -33,7 +100,7 @@ HoughCircles.process = function(image, radius) {
 	//Compute accumulation matrix for each bitmap pixel
 	for(var x=0;x<width;x++) {	
 
-		console.log('', 'Accumulation', x, '/', width)
+		//console.log('', 'Accumulation', x, '/', width)
 
 		for(var y=0;y<height;y++) {
 
@@ -67,13 +134,21 @@ HoughCircles.process = function(image, radius) {
 	}
 	whiteImage.write("output/white.jpg")
 
+	return acc;
+}
+
+HoughCircles.findMaxAcc = function(image, acc) {
+
+	var width = image.bitmap.width
+	var height = image.bitmap.height
+
 	// now normalise to 255 and put in format for a pixel array
 	var max=0;
 
 	// Find max acc value
 	for(var x=0;x<width;x++) {
 
-		console.log('', 'Find max accumulation', x, '/', width)
+		//console.log('', 'Find max accumulation', x, '/', width)
 
 		for(var y=0;y<height;y++) {
 			if (acc[x + (y * width)] > max) {
@@ -81,19 +156,28 @@ HoughCircles.process = function(image, radius) {
 			}			
 		}
 	}
-	console.log('Max is', max)
+
+	return max
+}
+
+HoughCircles.normalizeAcc = function(image, acc, max) {
+
+	var normalizedAcc = []
+
+	var width = image.bitmap.width
+	var height = image.bitmap.height
 
 	// Normalise all the values
 	var value, hexValue;
 	for(var x=0;x<width;x++) {
 
-		console.log('', 'Normalize accumulations', x, '/', width)
+		//console.log('', 'Normalize accumulations', x, '/', width)
 
 		for(var y=0;y<height;y++) {
 			value = Math.round((acc[x + (y * width)]/max)*255.0)
 			//DEL acc[x + (y * width)] = 0xff000000 | (value << 16 | value << 8 | value);
 			hexValue = Jimp.rgbaToInt(value, value, value, 255)
-			acc[x + (y * width)] = hexValue;
+			normalizedAcc[x + (y * width)] = hexValue;
 		}
 	}
 
@@ -101,26 +185,24 @@ HoughCircles.process = function(image, radius) {
 	var houghImage = image.clone()
 	for(var x=0;x<width;x++) {
 		for(var y=0;y<height;y++) {
-			var value = acc[x + (y * width)]
+			var value = normalizedAcc[x + (y * width)]
 			houghImage.setPixelColor(value, x, y)
 		}
 	}
 	houghImage.write("output/houghAcc.jpg")
 
-	findMaxima(image, radius);
-
-	console.log('done')
+	return normalizedAcc;
 }
 
 
-var findMaxima = function(image, radius) {
+HoughCircles.findMaxima = function(image, radius, normalizedAcc, circleCount) {
 
 	var width = image.bitmap.width
 	var height = image.bitmap.height
 
 	//DEL var results = new int[accSize*3];
 	var results = [];
-	for (var resultIndex = 0; resultIndex < accSize*3; resultIndex++) {
+	for (var resultIndex = 0; resultIndex < circleCount*3; resultIndex++) {
 		results[resultIndex] = 0;
 	}
 
@@ -128,18 +210,18 @@ var findMaxima = function(image, radius) {
 		for(var y=0;y<height;y++) {
 
 			//DEL var value = (acc[x + (y * width)] & 0xff);
-			var value = Jimp.intToRGBA(acc[x + (y * width)]).r
+			var value = Jimp.intToRGBA(normalizedAcc[x + (y * width)]).r
 			
 			// if its higher than lowest value add it and then sort
-			if (value > results[(accSize-1)*3]) {
+			if (value > results[(circleCount-1)*3]) {
 
 				// add to bottom of array
-				results[(accSize-1)*3] = value;
-				results[(accSize-1)*3+1] = x;
-				results[(accSize-1)*3+2] = y;
+				results[(circleCount-1)*3] = value;
+				results[(circleCount-1)*3+1] = x;
+				results[(circleCount-1)*3+2] = y;
 			
 				// shift up until its in right place
-				var i = (accSize-2)*3;
+				var i = (circleCount-2)*3;
 				while ((i >= 0) && (results[i+3] > results[i])) {
 					for(var j=0; j<3; j++) {
 						var temp = results[i+j];
@@ -153,15 +235,15 @@ var findMaxima = function(image, radius) {
 		}
 	}
 
-	var ratio=(width/2.)/accSize;
+	var ratio=(width/2.)/circleCount;
 	//console.log("top "+accSize+" matches:");
-	for(var i=accSize-1; i>=0; i--){			
+	for(var i=circleCount-1; i>=0; i--){			
 		//console.log("value: " + results[i*3] + ", r: " + results[i*3+1] + ", theta: " + results[i*3+2]);
 		
 		var circleCenterX = results[i*3+1]
 		var circleCenterY = results[i*3+2]
 
-		console.log('', 'Find maxima', (accSize - i), '/', accSize, ':', circleCenterX, circleCenterY)
+		console.log('', 'Find maxima', (circleCount - i), '/', circleCount, ':', circleCenterX, circleCenterY)
 
 		drawCircle(image, radius, results[i*3], circleCenterX, circleCenterY);
 

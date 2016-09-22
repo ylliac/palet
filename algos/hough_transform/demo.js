@@ -41,10 +41,9 @@ function run(image){
 	// Pour un radius, garder que les 12 meilleurs, 
 	// puis faire le radius suivant et ne garder que les 12 meilleurs cumulés... ?
 
-	var radius = 10
-	var circleCount = 10
-	HoughCircles.setCircleCount(circleCount);
-	HoughCircles.process(image, radius);
+	var circleCount = 30 
+	var threshold = 270 //0-360
+	HoughCircles.process(image, circleCount, threshold);
 
 	console.log('Computed Hough')
 	image.write("output/hough.jpg")
