@@ -1,12 +1,24 @@
 var Jimp = require('jimp')
 var Sobel = require('sobel')
+var Threshold = require('./threshold')
 var HoughCircles = require('./hough-circles')
 
-var imageFileName = 'real1_xs.jpg'
+var imageFileName = '../../images/real/real1.jpg'
+//var imageFileName = '../../images/real/real2.jpg'
+//var imageFileName = '../../images/real/real3.jpg'
+//var imageFileName = '../../images/real/real4.jpg'
+//var imageFileName = '../../images/real/real5.jpg'
+//var imageFileName = '../../images/real/real6.jpg'
+//var imageFileName = '../../images/real/real7.jpg' //TOO CLOSE
+//var imageFileName = '../../images/real/real8.jpg' //TOO MUCH GRASS AROUND
+//var imageFileName = '../../images/real/real9.jpg' //TOO CLOSE
+//var imageFileName = '../../images/real/real10.jpg' //TOO CLOSE
+
 Jimp
 	.read(imageFileName)
 	.then(function (image) {
-		run(image)
+		var resizedImage = image.resize(400, Jimp.AUTO)
+		run(resizedImage)
 	})
 	.catch(function (err) {
 	    console.error(err);
@@ -20,33 +32,22 @@ function run(image){
 	image.bitmap.data = Buffer.from(sobelImageData.data)
 
 	console.log('Computed Sobel')
-	image.write("output/sobel.jpg")
+	image.write("output/1-sobel.jpg")
 
+	var colorThreshold = 150
+	image = Threshold.process(image, colorThreshold)
 
-	//DEBUG : display sobel with only white pixels	
-	var width = image.bitmap.width
-	var height = image.bitmap.height
-	var sobelWhite = image.clone()
-	for(var x=0;x<width;x++) {
-		for(var y=0;y<height;y++) {
-			var pixelColorHex = image.getPixelColor(x, y)
-			var pixelColor = Jimp.intToRGBA(pixelColorHex).r
-			var value = pixelColor === 255 ? pixelColorHex : 0 
-			sobelWhite.setPixelColor(value, x, y)
-		}
-	}
-	sobelWhite.write("output/sobelWhite.jpg")
+	console.log('Computed Threshold')
+	image.write("output/2-sobelThreshold.jpg")
 
-	//TODO Faire un vote en 3D (x,y, radius)
-	// Pour un radius, garder que les 12 meilleurs, 
-	// puis faire le radius suivant et ne garder que les 12 meilleurs cumulés... ?
-
-	var circleCount = 30 
-	var threshold = 270 //0-360
-	HoughCircles.process(image, circleCount, threshold);
+	var minRadius = 10 
+	var maxRadius = 30 
+	var circleCount = 12 
+	var angleThreshold = 200 //0-360
+	HoughCircles.process(image, circleCount, angleThreshold, minRadius, maxRadius);
 
 	console.log('Computed Hough')
-	image.write("output/hough.jpg")
+	image.write("output/4-hough.jpg")
 }
 
 

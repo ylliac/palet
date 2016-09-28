@@ -1,19 +1,24 @@
 var Jimp = require('jimp')
+var _ = require('lodash')
 
 var HoughCircles = {};
 
-HoughCircles.process = function(image, circleCount, threshold) {
+HoughCircles.process = function(image, circleCount, threshold, minRadius, maxRadius) {
 
 	var mergedAcc = [];
 
 	
 	var mergedAcc = []
-	for (var radius = 3; radius < 16; radius++) {
+	for (var radius = minRadius; radius <= maxRadius; radius++) {
 		var acc = this.computeAcc(image, radius) 
 		var prunedAcc = this.pruneAcc(image, acc, threshold) 
 
 		mergedAcc = this.mergeAcc(image, mergedAcc, prunedAcc)
+
+		process.stdout.write("Computing Hough Transform for radius " + radius + "\r");
 	}
+	console.log('')
+	mergedAcc = this.groupCloseAcc(image, mergedAcc);
 
 	var max = this.findMaxAcc(image, mergedAcc)
 	var normalizedAcc = this.normalizeAcc(image, mergedAcc, max)
@@ -78,6 +83,35 @@ HoughCircles.mergeAcc = function(image, currentAcc, accToMerge) {
 	return mergedAcc			
 }
 
+HoughCircles.groupCloseAcc = function(image, acc) {
+	
+	var width = image.bitmap.width
+	var height = image.bitmap.height
+
+	// for polar we need accumulator of 180degress * the longest length in the image
+	var groupedAcc = []
+	for(var x=0;x<width;x++) {
+		for(var y=0;y<height;y++) {
+			var value = acc[x + width*y]
+			var closeValues = [
+				acc[x + 1 + width * y],	
+				acc[x + 1 + width * (y + 1)],
+				acc[x + 1 + width * (y - 1)],			
+				acc[x - 1 + width * y],		
+				acc[x - 1 + width * (y + 1)],
+				acc[x - 1 + width * (y - 1)],		
+				acc[x + width * (y + 1)],				
+				acc[x + width * (y - 1)]
+			]
+
+			var isCloseToGreaterValue = _.some(closeValues, closeValue => closeValue > value)
+			groupedAcc[x + width*y] = isCloseToGreaterValue ? 0 : value
+		}
+	}
+
+	return groupedAcc			
+}
+
 HoughCircles.computeAcc = function(image, radius) {
 	
 	var width = image.bitmap.width
@@ -94,9 +128,6 @@ HoughCircles.computeAcc = function(image, radius) {
 	var x0
 	var y0
 	
-	//TODO TEST
-	var whiteImage = image.clone()
-
 	//Compute accumulation matrix for each bitmap pixel
 	for(var x=0;x<width;x++) {	
 
@@ -124,15 +155,9 @@ HoughCircles.computeAcc = function(image, radius) {
 						acc[x0 + (y0 * width)] += 1;
 					}
 				}
-
-				//TODO
-				//console.log('white', x, y)
-				var green = Jimp.rgbaToInt(0, 255, 0, 255)
-				whiteImage.setPixelColor(green, x, y)
 			}
 		}
 	}
-	whiteImage.write("output/white.jpg")
 
 	return acc;
 }
@@ -189,7 +214,7 @@ HoughCircles.normalizeAcc = function(image, acc, max) {
 			houghImage.setPixelColor(value, x, y)
 		}
 	}
-	houghImage.write("output/houghAcc.jpg")
+	houghImage.write("output/3-houghAcc.jpg")
 
 	return normalizedAcc;
 }
@@ -242,14 +267,16 @@ HoughCircles.findMaxima = function(image, radius, normalizedAcc, circleCount) {
 		
 		var circleCenterX = results[i*3+1]
 		var circleCenterY = results[i*3+2]
+		var value = results[i*3]
 
-		console.log('', 'Find maxima', (circleCount - i), '/', circleCount, ':', circleCenterX, circleCenterY)
-
-		drawCircle(image, radius, results[i*3], circleCenterX, circleCenterY);
-
-		//TEST Display circle center
-		var red = Jimp.rgbaToInt(255, 0, 0, 255)
-		image.setPixelColor(red, circleCenterX, circleCenterY)
+		if(value > 0){
+			console.log('', 'Find maxima', (circleCount - i), '/', circleCount, ':', circleCenterX, circleCenterY, '(', value, ')')
+			drawCircle(image, radius, value, circleCenterX, circleCenterY);
+			
+			//TEST Display circle center
+			var red = Jimp.rgbaToInt(255, 0, 0, 255)
+			image.setPixelColor(red, circleCenterX, circleCenterY)
+		}
 	}
 }
 
