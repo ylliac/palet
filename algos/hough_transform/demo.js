@@ -3,12 +3,12 @@ var Threshold = require('./threshold')
 var EdgeDetection = require('./edge-detection')
 var CircleDetection = require('./circle-detection')
 
-var imageFileName = '../../images/real/real1.jpg'
-//var imageFileName = '../../images/real/real2.jpg'
-//var imageFileName = '../../images/real/real3.jpg'
-//var imageFileName = '../../images/real/real4.jpg'
-//var imageFileName = '../../images/real/real5.jpg'
-//var imageFileName = '../../images/real/real6.jpg'
+var imageFileName = '../../images/real/real1.jpg' //OK
+//var imageFileName = '../../images/real/real2.jpg' //OK
+//var imageFileName = '../../images/real/real3.jpg' //OK
+//var imageFileName = '../../images/real/real4.jpg' //OK
+//var imageFileName = '../../images/real/real5.jpg' //OK
+//var imageFileName = '../../images/real/real6.jpg' //OK
 //var imageFileName = '../../images/real/real7.jpg' //TOO CLOSE
 //var imageFileName = '../../images/real/real8.jpg' //TOO MUCH GRASS AROUND
 //var imageFileName = '../../images/real/real9.jpg' //TOO CLOSE
@@ -26,6 +26,7 @@ Jimp
 
 
 function run(image){
+	image.write("output/0-original.jpg")
 
 	var colorThreshold = 150
 	var minRadius = 10 

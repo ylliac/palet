@@ -221,24 +221,30 @@ var houghAccumulation = function(image){
 			}
 		}
 
-		var minRadius = _.min(_.map(results, result => result.radius))
+		// ISOLATE VALID RESULTS
+		var validResults = _.filter(results, result => result.value > 0)
+
+		// IDENTIFY SMALLEST ONE
+		var smallestCircle = _.minBy(validResults, result => result.radius)
+		var indexOfSmallest = _.indexOf(results, smallestCircle)
+		console.log('', 'Found smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
+		drawCircleInYellow(smallestCircle.x, smallestCircle.y)
 
 
-		for(var i=circleCount-1; i>=0; i--){			
-	
-			var result = results[i]
+		// FIND CLOSEST FROM SMALLEST
+		var squareDistance = (a, b) => ((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y))
+		var candidatesForClosest = _.differenceWith(validResults, [smallestCircle], _.isEqual)		
+		var closestCircleFromSmallest = _.minBy(candidatesForClosest, result => squareDistance(result, smallestCircle))
+		console.log('', 'Found closest from smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
+		drawCircleInGreen(closestCircleFromSmallest.x, closestCircleFromSmallest.y)		
 
-			if(result.value > 0){				
-				if(result.radius === minRadius){
-					console.log('', 'Found smallest something', (circleCount - i), '/', circleCount, ':', result)
-					drawCircleInBlue(result.x, result.y)
-				}
-				else{
-					console.log('', 'Found something', (circleCount - i), '/', circleCount, ':', result)
-					drawCircleInRed(result.x, result.y)					
-				}
-			}
-		}
+		// DRAW THE OTHERS
+		var others = _.differenceWith(candidatesForClosest, [closestCircleFromSmallest], _.isEqual)
+		others.forEach(otherCircle => {			
+			var indexOfOther = _.indexOf(results, otherCircle)
+			console.log('', 'Found other', (circleCount - indexOfOther), '/', circleCount, ':', otherCircle)
+			drawCircleInRed(otherCircle.x, otherCircle.y)	
+		})
 	}
 
 	var drawCircleInRed = function(xCenter, yCenter) {
@@ -251,9 +257,9 @@ var houghAccumulation = function(image){
 		drawCircle(xCenter, yCenter, green)
 	}
 
-	var drawCircleInBlue = function(xCenter, yCenter) {
-		var blue = Jimp.rgbaToInt(0, 0, 255, 255)
-		drawCircle(xCenter, yCenter, blue)
+	var drawCircleInYellow = function(xCenter, yCenter) {
+		var yellow = Jimp.rgbaToInt(255, 255, 0, 255)
+		drawCircle(xCenter, yCenter, yellow)
 	}
 
 	var drawCircle = function(xCenter, yCenter, color) {
