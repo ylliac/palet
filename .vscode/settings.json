@@ -1,0 +1,6 @@
+// Placez vos paramètres dans ce fichier pour remplacer les paramètres par défaut et les paramètres utilisateur.
+{
+    "standard.autoFixOnSave": true,
+    "javascript.validate.enable": false,
+    "editor.tabSize": 2
+}

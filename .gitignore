@@ -1,7 +1,7 @@
-# ignore node.js extra modules
-node_modules/
-platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties
-platforms/android/
-plugins/
-platforms/browser/
-www/
+# Logs
+/logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules
