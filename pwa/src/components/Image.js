@@ -1,15 +1,24 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import * as actions from '../actions'
 
 export const Image = ({imageData}) => {
   if (imageData) {
     return (
-      <img alt='Palets' src={imageData} />
+      <div>
+        <img alt='Palets' src={imageData} />
+        <p className='App-intro'>
+          Pour changer d'image, cliquez sur 'Prendre une photo' ou sur 'Exemple'.
+        </p>
+        <p className='App-intro'>
+          Pour analyser l'image, cliquez sur 'Analyser'.
+        </p>
+      </div>
     )
   } else {
     return (
-      <span>Cliquer sur l'un des boutons ci dessous</span>
+      <p className='App-intro'>
+          Cliquez sur 'Prendre une photo' ou sur 'Exemple'.
+        </p>
     )
   }
 }
@@ -20,4 +29,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, actions)(Image)
+export default connect(mapStateToProps)(Image)

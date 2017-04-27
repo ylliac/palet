@@ -1,11 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import * as actions from '../actions'
+import { loadSampleImage } from '../commands/loadImage'
 
-export const LoadSampleButton = ({processSampleImage}) => {
-  return <button onClick={processSampleImage}>Exemple</button>
+export const LoadSampleButton = ({processSampleImage, loadSampleImage}) => {
+  const handleClick = () => {
+    loadSampleImage()
+  }
+
+  return <button onClick={handleClick}>Exemple</button>
 }
 
 const mapStateToProps = () => { return {} }
 
-export default connect(mapStateToProps, actions)(LoadSampleButton)
+export default connect(mapStateToProps, {loadSampleImage})(LoadSampleButton)

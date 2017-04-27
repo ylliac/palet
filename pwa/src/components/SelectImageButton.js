@@ -1,4 +1,6 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { loadImageFromFile } from '../commands/loadImage'
 
 const styles = {
   label: {
@@ -14,13 +16,21 @@ const styles = {
   }
 }
 
-const SelectImageButton = () => {
+const SelectImageButton = ({loadImageFromFile, processImageFromFile}) => {
+  const handleChange = (event) => {
+    const imageFile = event.target.files[0]
+    loadImageFromFile(imageFile)
+    event.preventDefault()
+  }
+
   return (
     <div>
       <label htmlFor='selectImageButton' style={styles.label}>Prendre une photo</label>
-      <input id='selectImageButton' style={styles.button} type='file' name='image' accept='image/*' capture='camera' />
+      <input id='selectImageButton' onChange={handleChange} style={styles.button} type='file' name='image' accept='image/*' capture='camera' />
     </div>
   )
 }
 
-export default SelectImageButton
+const mapStateToProps = () => { return {} }
+
+export default connect(mapStateToProps, {loadImageFromFile})(SelectImageButton)
