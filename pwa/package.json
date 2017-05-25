@@ -1,6 +1,7 @@
 {
   "name": "palet",
   "version": "0.1.0",
+  "homepage": "http://acailly.github.io",
   "private": true,
   "devDependencies": {
     "react-scripts": "0.9.5"
