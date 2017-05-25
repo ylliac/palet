@@ -7,6 +7,7 @@ import thunk from 'redux-thunk'
 import reducer from './reducer'
 import App from './components/App'
 import './index.css'
+import registerServiceWorker from './registerServiceWorker'
 
 const store = createStore(reducer, compose(applyMiddleware(thunk), window.__REDUX_DEVTOOLS_EXTENSION__ ? window.__REDUX_DEVTOOLS_EXTENSION__() : f => f))
 
@@ -16,3 +17,5 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 )
+
+registerServiceWorker()
