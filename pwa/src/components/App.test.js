@@ -1,8 +1,16 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import App from './App'
+import renderer from 'react-test-renderer'
+import configureMockStore from 'redux-mock-store'
+import {Provider} from 'react-redux'
+
+const mockStoreFactory = configureMockStore()
 
 it('renders without crashing', () => {
-  const div = document.createElement('div')
-  ReactDOM.render(<App />, div)
+  const tree = renderer.create(
+    <Provider store={mockStoreFactory()}>
+      <App />
+    </Provider>
+    ).toJSON()
+  expect(tree).toMatchSnapshot()
 })

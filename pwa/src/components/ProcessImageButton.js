@@ -14,7 +14,7 @@ export const ProcessImageButton = ({processImageFromImageData, imageData}) => {
 
 const mapStateToProps = (state) => {
   return {
-    imageData: state.image.imageData
+    imageData: state.image ? state.image.imageData : null
   }
 }
 
