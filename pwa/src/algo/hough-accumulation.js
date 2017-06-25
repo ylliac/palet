@@ -5,9 +5,9 @@ var _ = require('lodash')
 const cosThetaRadians = []
 const sinThetaRadians = []
 for (var theta = 0; theta < 360; theta++) {
-  const thetaRadians = (theta * 3.14159265) / 180
-  cosThetaRadians.push(Math.cos(thetaRadians))
-  sinThetaRadians.push(Math.sin(thetaRadians))
+  const thetaRadian = (theta * 3.14159265) / 180
+  cosThetaRadians.push(Math.cos(thetaRadian))
+  sinThetaRadians.push(Math.sin(thetaRadian))
 }
 
 const getMaxAccumulation = (acc, width, height) => {
@@ -52,31 +52,40 @@ export const houghAccumulation = sourceImage => {
 }
 
 export const computeForRadius = (houghAcc, radius) => {
+  let x
+  let y
+  let theta
+
   let x0
   let y0
 
-    // Compute accumulation matrix for each bitmap pixel
-  for (let x = 0; x < houghAcc.width; x++) {
-      // console.log('', 'Accumulation', x, '/', width)
+  // Precompute radius x cos/sin
+  const cosMultiplyRadius = cosThetaRadians.map(v => v * radius)
+  const sinMultiplyRadius = cosThetaRadians.map(v => v * radius)
 
-    for (let y = 0; y < houghAcc.height; y++) {
-        // If the pixel is black
+  // Compute accumulation matrix for each bitmap pixel
+  for (x = 0; x < houghAcc.width; x++) {
+    // console.log('', 'Accumulation', x, '/', width)
+
+    for (y = 0; y < houghAcc.height; y++) {
+      // If the pixel is black
       const pixelColorHex = houghAcc.image.getPixelColor(x, y)
       const pixelColor = Jimp.intToRGBA(pixelColorHex).r
 
-        // DEL if ((pixelColor & 0xff) == 255) {
+      // DEL if ((pixelColor & 0xff) == 255) {
       if (pixelColor === 255) {
-          // We compute every circle passing by this point
-          // using this formula:
-          // x = x0 + r * cos(theta)
-          // x = y0 + r * sin(theta)
+        // We compute every circle passing by this point
+        // using this formula:
+        // x = x0 + r * cos(theta)
+        // x = y0 + r * sin(theta)
 
-        for (let theta = 0; theta < 360; theta++) {
-          x0 = Math.round(x - (radius * cosThetaRadians[theta]))
-          y0 = Math.round(y - (radius * sinThetaRadians[theta]))
-          if (x0 < houghAcc.width && x0 > 0 && y0 < houghAcc.height && y0 > 0) {
-            houghAcc.accumulation[x0 + (y0 * houghAcc.width)] += 1
-            houghAcc.accumulationRadius[x0 + (y0 * houghAcc.width)] = radius
+        for (theta = 0; theta < 360; theta++) {
+          x0 = Math.round(x - (cosMultiplyRadius[theta]))
+          y0 = Math.round(y - (sinMultiplyRadius[theta]))
+          if (x0 > 0 && y0 > 0 && x0 < houghAcc.width && y0 < houghAcc.height) {
+            const editIndex = x0 + (y0 * houghAcc.width)
+            houghAcc.accumulation[editIndex] += 1
+            houghAcc.accumulationRadius[editIndex] = radius
           }
         }
       }
