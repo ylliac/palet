@@ -1,14 +1,16 @@
 /* globals FileReader */
-import 'jimp/browser/lib/jimp'
 
+import 'jimp/browser/lib/jimp'
 import processImageAlgorithm from '../algo'
-import { loadImageData } from './loadImage'
+import {loadImageData} from './loadImage'
+
+const Jimp = window.Jimp
 
 export const processImage = (image) => {
   return (dispatch) => {
-    const resizedImage = image.resize(400, window.Jimp.AUTO)
+    const resizedImage = image.resize(400, Jimp.AUTO)
     return processImageAlgorithm(resizedImage)
-      .getBase64(window.Jimp.MIME_JPEG, function (err, imageData) {
+      .getBase64(Jimp.MIME_JPEG, function (err, imageData) {
         dispatch(loadImageData(imageData))
       })
   }
@@ -34,7 +36,7 @@ export const processImageFromImageData = (imageData) => {
     }
     const arrayBuffer = bytes.buffer
 
-    window.Jimp
+    Jimp
       .read(arrayBuffer)
       .then(function (image) {
         dispatch(processImage(image))
@@ -46,11 +48,12 @@ export const processImageFromImageData = (imageData) => {
 
 export const processImageFromFileName = (imageFileName) => {
   return (dispatch) => {
-    window.Jimp
+    return Jimp
       .read(imageFileName)
       .then(function (image) {
         dispatch(processImage(image))
-      }).catch(function (err) {
+      })
+      .catch(function (err) {
         console.error(err)
       })
   }
@@ -60,7 +63,7 @@ export const processImageFromFile = (imageFile) => {
   return (dispatch) => {
     const fileReader = new FileReader()
     fileReader.onload = (event) => {
-      window.Jimp
+      Jimp
       .read(fileReader.result)
       .then(function (image) {
         dispatch(processImage(image))
