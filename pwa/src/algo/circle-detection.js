@@ -1,29 +1,35 @@
-var houghAccumulation = require('./hough-accumulation')
+import {
+  houghAccumulation,
+  computeForRadius,
+  applyThreshold,
+  mergeWith,
+  groupMaxima,
+  normalize,
+  drawMaxima
+} from './hough-accumulation'
 
-var CircleDetection = {}
-
-CircleDetection.process = function (image, circleCount, threshold, minRadius, maxRadius) {
-  var mergedAcc = houghAccumulation(image)
+const circleDetection = (image, circleCount, threshold, minRadius, maxRadius) => {
+  const mergedAcc = houghAccumulation(image)
 
   for (var radius = minRadius; radius <= maxRadius; radius++) {
-    var acc = houghAccumulation(image)
-    acc.computeForRadius(radius)
-    acc.applyThreshold(threshold)
+    const acc = houghAccumulation(image)
+    computeForRadius(acc, radius)
+    applyThreshold(acc, threshold)
 
-    mergedAcc.mergeWith(acc)
+    mergeWith(mergedAcc, acc)
 
     console.log('Computing Hough Transform for radius ' + radius + '\r')
   }
   console.log('')
 
-  mergedAcc.groupMaxima()
-  mergedAcc.normalize()
+  groupMaxima(mergedAcc)
+  normalize(mergedAcc)
 
-  mergedAcc.drawMaxima(circleCount)
+  drawMaxima(mergedAcc, circleCount)
 
   console.log('done')
 
-  return mergedAcc.image()
+  return mergedAcc.image
 }
 
-module.exports = CircleDetection
+export default circleDetection

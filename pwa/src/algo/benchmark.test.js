@@ -1,9 +1,9 @@
 import now from 'performance-now'
 import chalk from 'chalk'
 import 'jimp/browser/lib/jimp'
-import EdgeDetection from './edge-detection'
-import CircleDetection from './circle-detection'
-import Threshold from './threshold'
+import edgeDetection from './edge-detection'
+import circleDetection from './circle-detection'
+import threshold from './threshold'
 
 const Jimp = window.Jimp
 
@@ -43,19 +43,19 @@ function processImage (image) {
   var circleCount = 12
   var angleThreshold = 200 // 0-360
 
-  image = EdgeDetection.process(image)
+  image = edgeDetection(image)
 
   console.log('Computed Edge Detection')
   const afterEdgeDetection = now()
   console.log(chalk.red('BENCHMARK'), 'after edge detection', (afterEdgeDetection - start).toFixed(3))
 
-  image = Threshold.process(image, colorThreshold)
+  image = threshold(image, colorThreshold)
 
   console.log('Computed Threshold')
   const afterThreshold = now()
   console.log(chalk.red('BENCHMARK'), 'after threshold', (afterThreshold - afterEdgeDetection).toFixed(3))
 
-  image = CircleDetection.process(image, circleCount, angleThreshold, minRadius, maxRadius)
+  image = circleDetection(image, circleCount, angleThreshold, minRadius, maxRadius)
 
   console.log('Computed Circle Detection')
   const afterCircleDetection = now()

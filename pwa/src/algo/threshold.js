@@ -1,8 +1,6 @@
-var Jimp = require('jimp')
+import Jimp from 'jimp'
 
-var Threshold = {}
-
-Threshold.process = function (image, threshold) {
+const threshold = (image, threshold) => {
   var width = image.bitmap.width
   var height = image.bitmap.height
 
@@ -22,4 +20,4 @@ Threshold.process = function (image, threshold) {
   return sobelThreshold
 }
 
-module.exports = Threshold
+export default threshold

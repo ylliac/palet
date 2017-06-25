@@ -10,281 +10,260 @@ for (var theta = 0; theta < 360; theta++) {
   sinThetaRadians.push(Math.sin(thetaRadians))
 }
 
-var houghAccumulation = function (image) {
-  var HoughAccumulation = {}
+const getMaxAccumulation = (acc, width, height) => {
+    // now normalise to 255 and put in format for a pixel array
+  let max = 0
 
-  var _acc
-  var _accRadius
-  var _width
-  var _height
-  var _image
+    // Find max acc value
+  for (let x = 0; x < width; x++) {
+      // console.log('', 'Find max accumulation', x, '/', width)
 
-  var initFrom = function (image) {
-    _width = image.bitmap.width
-    _height = image.bitmap.height
-    _image = image.clone()
-
-    _acc = []
-    _accRadius = []
-    for (var x = 0; x < _width; x++) {
-      for (var y = 0; y < _height; y++) {
-        _acc[x + (_width * y)] = 0
-        _accRadius[x + (_width * y)] = 0
+    for (let y = 0; y < height; y++) {
+      if (acc[x + (y * width)] > max) {
+        max = acc[x + (y * width)]
       }
     }
   }
 
-  HoughAccumulation.accumulation = function () {
-    return _acc
+  return max
+}
+
+export const houghAccumulation = sourceImage => {
+  let width = sourceImage.bitmap.width
+  let height = sourceImage.bitmap.height
+  let image = sourceImage.clone()
+
+  let acc = []
+  let accRadius = []
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      acc[x + (width * y)] = 0
+      accRadius[x + (width * y)] = 0
+    }
   }
 
-  HoughAccumulation.accumulationRadius = function () {
-    return _accRadius
+  return {
+    accumulation: acc,
+    accumulationRadius: accRadius,
+    width,
+    height,
+    image
   }
+}
 
-  HoughAccumulation.image = function () {
-    return _image
-  }
-
-  HoughAccumulation.computeForRadius = function (radius) {
-    var x0
-    var y0
+export const computeForRadius = (houghAcc, radius) => {
+  let x0
+  let y0
 
     // Compute accumulation matrix for each bitmap pixel
-    for (var x = 0; x < _width; x++) {
+  for (let x = 0; x < houghAcc.width; x++) {
       // console.log('', 'Accumulation', x, '/', width)
 
-      for (var y = 0; y < _height; y++) {
+    for (let y = 0; y < houghAcc.height; y++) {
         // If the pixel is black
-        var pixelColorHex = _image.getPixelColor(x, y)
-        var pixelColor = Jimp.intToRGBA(pixelColorHex).r
+      const pixelColorHex = houghAcc.image.getPixelColor(x, y)
+      const pixelColor = Jimp.intToRGBA(pixelColorHex).r
 
         // DEL if ((pixelColor & 0xff) == 255) {
-        if (pixelColor === 255) {
+      if (pixelColor === 255) {
           // We compute every circle passing by this point
           // using this formula:
           // x = x0 + r * cos(theta)
           // x = y0 + r * sin(theta)
 
-          for (var theta = 0; theta < 360; theta++) {
-            x0 = Math.round(x - (radius * cosThetaRadians[theta]))
-            y0 = Math.round(y - (radius * sinThetaRadians[theta]))
-            if (x0 < _width && x0 > 0 && y0 < _height && y0 > 0) {
-              _acc[x0 + (y0 * _width)] += 1
-              _accRadius[x0 + (y0 * _width)] = radius
-            }
+        for (let theta = 0; theta < 360; theta++) {
+          x0 = Math.round(x - (radius * cosThetaRadians[theta]))
+          y0 = Math.round(y - (radius * sinThetaRadians[theta]))
+          if (x0 < houghAcc.width && x0 > 0 && y0 < houghAcc.height && y0 > 0) {
+            houghAcc.accumulation[x0 + (y0 * houghAcc.width)] += 1
+            houghAcc.accumulationRadius[x0 + (y0 * houghAcc.width)] = radius
           }
         }
       }
     }
   }
-
-  HoughAccumulation.applyThreshold = function (threshold) {
-    for (var x = 0; x < _width; x++) {
-      for (var y = 0; y < _height; y++) {
-        if (_acc[x + (_width * y)] <= threshold) {
-          _acc[x + (_width * y)] = 0
-          _accRadius[x + (_width * y)] = 0
-        }
-      }
-    }
-  }
-
-  HoughAccumulation.mergeWith = function (accToMerge) {
-    var otherAcc = accToMerge.accumulation()
-    var otherAccRadius = accToMerge.accumulationRadius()
-
-    for (var x = 0; x < _width; x++) {
-      for (var y = 0; y < _height; y++) {
-        _acc[x + (_width * y)] = Math.max(_acc[x + (_width * y)], otherAcc[x + (_width * y)])
-        _accRadius[x + (_width * y)] = Math.max(_accRadius[x + (_width * y)], otherAccRadius[x + (_width * y)])
-      }
-    }
-  }
-
-  HoughAccumulation.groupMaxima = function () {
-    var groupedAcc = []
-    for (var x = 0; x < _width; x++) {
-      for (var y = 0; y < _height; y++) {
-        var value = _acc[x + (_width * y)]
-        var closeValues = [
-          _acc[x + 1 + (_width * y)],
-          _acc[x + 1 + (_width * (y + 1))],
-          _acc[x + 1 + (_width * (y - 1))],
-          _acc[x - 1 + (_width * y)],
-          _acc[x - 1 + (_width * (y + 1))],
-          _acc[x - 1 + (_width * (y - 1))],
-          _acc[x + (_width * (y + 1))],
-          _acc[x + (_width * (y - 1))]
-        ]
-
-        var isCloseToGreaterValue = _.some(closeValues, closeValue => closeValue > value)
-        if (isCloseToGreaterValue) {
-          groupedAcc[x + (_width * y)] = 0
-          _accRadius[x + (_width * y)] = 0
-        } else {
-          groupedAcc[x + (_width * y)] = value
-        }
-      }
-    }
-
-    _acc = groupedAcc
-  }
-
-  HoughAccumulation.getMaxAccumulation = function () {
-    // now normalise to 255 and put in format for a pixel array
-    var max = 0
-
-    // Find max acc value
-    for (var x = 0; x < _width; x++) {
-      // console.log('', 'Find max accumulation', x, '/', width)
-
-      for (var y = 0; y < _height; y++) {
-        if (_acc[x + (y * _width)] > max) {
-          max = _acc[x + (y * _width)]
-        }
-      }
-    }
-
-    return max
-  }
-
-  HoughAccumulation.normalize = function () {
-    var max = this.getMaxAccumulation()
-
-    // Normalise all the values
-    var value, hexValue
-    for (var x = 0; x < _width; x++) {
-      // console.log('', 'Normalize accumulations', x, '/', width)
-
-      for (var y = 0; y < _height; y++) {
-        value = Math.round((_acc[x + (y * _width)] / max) * 255.0)
-        // DEL acc[x + (y * width)] = 0xff000000 | (value << 16 | value << 8 | value);
-        hexValue = Jimp.rgbaToInt(value, value, value, 255)
-        _acc[x + (y * _width)] = hexValue
-      }
-    }
-  }
-
-  HoughAccumulation.drawMaxima = function (circleCount) {
-    var results = []
-    for (var resultIndex = 0; resultIndex < circleCount; resultIndex++) {
-      results[resultIndex] = {value: 0}
-    }
-
-    for (var x = 0; x < _width; x++) {
-      for (var y = 0; y < _height; y++) {
-        var value = Jimp.intToRGBA(_acc[x + (y * _width)]).r
-
-        // if its higher than lowest value add it and then sort
-        if (value > results[(circleCount - 1)].value) {
-          const radius = _accRadius[x + (y * _width)]
-
-          // add to bottom of array
-          results[(circleCount - 1)] = {
-            x: x,
-            y: y,
-            value: value,
-            radius: radius
-          }
-
-          // shift up until its in right place
-          var i = (circleCount - 2)
-          while ((i >= 0) && (results[i + 1].value > results[i].value)) {
-            var temp = results[i]
-            results[i] = results[i + 1]
-            results[i + 1] = temp
-            i = i - 1
-            if (i < 0) break
-          }
-        }
-      }
-    }
-
-    // ISOLATE VALID RESULTS
-    var validResults = _.filter(results, result => result.value > 0)
-
-    // IDENTIFY SMALLEST ONE
-    var smallestCircle = _.minBy(validResults, result => result.radius)
-    var indexOfSmallest = _.indexOf(results, smallestCircle)
-    console.log('', 'Found smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
-    drawCircleInYellow(smallestCircle.x, smallestCircle.y)
-
-    // FIND CLOSEST FROM SMALLEST
-    var squareDistance = (a, b) => (((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)))
-    var candidatesForClosest = _.differenceWith(validResults, [smallestCircle], _.isEqual)
-    var closestCircleFromSmallest = _.minBy(candidatesForClosest, result => squareDistance(result, smallestCircle))
-    console.log('', 'Found closest from smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
-    drawCircleInGreen(closestCircleFromSmallest.x, closestCircleFromSmallest.y)
-
-    // DRAW THE OTHERS
-    var others = _.differenceWith(candidatesForClosest, [closestCircleFromSmallest], _.isEqual)
-    others.forEach(otherCircle => {
-      var indexOfOther = _.indexOf(results, otherCircle)
-      console.log('', 'Found other', (circleCount - indexOfOther), '/', circleCount, ':', otherCircle)
-      drawCircleInRed(otherCircle.x, otherCircle.y)
-    })
-  }
-
-  var drawCircleInRed = function (xCenter, yCenter) {
-    var red = Jimp.rgbaToInt(255, 0, 0, 255)
-    drawCircle(xCenter, yCenter, red)
-  }
-
-  var drawCircleInGreen = function (xCenter, yCenter) {
-    var green = Jimp.rgbaToInt(0, 255, 0, 255)
-    drawCircle(xCenter, yCenter, green)
-  }
-
-  var drawCircleInYellow = function (xCenter, yCenter) {
-    var yellow = Jimp.rgbaToInt(255, 255, 0, 255)
-    drawCircle(xCenter, yCenter, yellow)
-  }
-
-  var drawCircle = function (xCenter, yCenter, color) {
-    // Display circle center
-    _image.setPixelColor(color, xCenter, yCenter)
-
-    // Display circle
-    var radius = 4
-
-    var x, y, r2
-    r2 = radius * radius
-    setPixel(color, xCenter, yCenter + radius)
-    setPixel(color, xCenter, yCenter - radius)
-    setPixel(color, xCenter + radius, yCenter)
-    setPixel(color, xCenter - radius, yCenter)
-
-    y = radius
-    x = 1
-    y = Math.round(Math.sqrt(r2 - 1) + 0.5)
-    while (x < y) {
-      setPixel(color, xCenter + x, yCenter + y)
-      setPixel(color, xCenter + x, yCenter - y)
-      setPixel(color, xCenter - x, yCenter + y)
-      setPixel(color, xCenter - x, yCenter - y)
-      setPixel(color, xCenter + y, yCenter + x)
-      setPixel(color, xCenter + y, yCenter - x)
-      setPixel(color, xCenter - y, yCenter + x)
-      setPixel(color, xCenter - y, yCenter - x)
-      x += 1
-      y = Math.round(Math.sqrt(r2 - (x * x)) + 0.5)
-    }
-    if (x === y) {
-      setPixel(color, xCenter + x, yCenter + y)
-      setPixel(color, xCenter + x, yCenter - y)
-      setPixel(color, xCenter - x, yCenter + y)
-      setPixel(color, xCenter - x, yCenter - y)
-    }
-  }
-
-  var setPixel = function (color, xPos, yPos) {
-    _image.setPixelColor(color, xPos, yPos)
-  }
-
-  initFrom(image)
-
-  return HoughAccumulation
 }
 
-module.exports = houghAccumulation
+export const applyThreshold = (houghAcc, threshold) => {
+  for (let x = 0; x < houghAcc.width; x++) {
+    for (let y = 0; y < houghAcc.height; y++) {
+      if (houghAcc.accumulation[x + (houghAcc.width * y)] <= threshold) {
+        houghAcc.accumulation[x + (houghAcc.width * y)] = 0
+        houghAcc.accumulationRadius[x + (houghAcc.width * y)] = 0
+      }
+    }
+  }
+}
+
+export const mergeWith = (houghAcc, accToMerge) => {
+  const otherAcc = accToMerge.accumulation
+  const otherAccRadius = accToMerge.accumulationRadius
+
+  for (let x = 0; x < houghAcc.width; x++) {
+    for (let y = 0; y < houghAcc.height; y++) {
+      houghAcc.accumulation[x + (houghAcc.width * y)] = Math.max(houghAcc.accumulation[x + (houghAcc.width * y)], otherAcc[x + (houghAcc.width * y)])
+      houghAcc.accumulationRadius[x + (houghAcc.width * y)] = Math.max(houghAcc.accumulationRadius[x + (houghAcc.width * y)], otherAccRadius[x + (houghAcc.width * y)])
+    }
+  }
+}
+
+export const groupMaxima = houghAcc => {
+  const groupedAcc = []
+  for (let x = 0; x < houghAcc.width; x++) {
+    for (let y = 0; y < houghAcc.height; y++) {
+      const value = houghAcc.accumulation[x + (houghAcc.width * y)]
+      const closeValues = [
+        houghAcc.accumulation[x + 1 + (houghAcc.width * y)],
+        houghAcc.accumulation[x + 1 + (houghAcc.width * (y + 1))],
+        houghAcc.accumulation[x + 1 + (houghAcc.width * (y - 1))],
+        houghAcc.accumulation[x - 1 + (houghAcc.width * y)],
+        houghAcc.accumulation[x - 1 + (houghAcc.width * (y + 1))],
+        houghAcc.accumulation[x - 1 + (houghAcc.width * (y - 1))],
+        houghAcc.accumulation[x + (houghAcc.width * (y + 1))],
+        houghAcc.accumulation[x + (houghAcc.width * (y - 1))]
+      ]
+
+      const isCloseToGreaterValue = _.some(closeValues, closeValue => closeValue > value)
+      if (isCloseToGreaterValue) {
+        groupedAcc[x + (houghAcc.width * y)] = 0
+        houghAcc.accumulationRadius[x + (houghAcc.width * y)] = 0
+      } else {
+        groupedAcc[x + (houghAcc.width * y)] = value
+      }
+    }
+  }
+
+  houghAcc.accumulation = groupedAcc
+}
+
+export const normalize = houghAcc => {
+  const max = getMaxAccumulation(houghAcc.accumulation, houghAcc.width, houghAcc.height)
+
+    // Normalise all the values
+  let value
+  let hexValue
+  for (let x = 0; x < houghAcc.width; x++) {
+      // console.log('', 'Normalize accumulations', x, '/', width)
+
+    for (let y = 0; y < houghAcc.height; y++) {
+      value = Math.round((houghAcc.accumulation[x + (y * houghAcc.width)] / max) * 255.0)
+        // DEL acc[x + (y * width)] = 0xff000000 | (value << 16 | value << 8 | value);
+      hexValue = Jimp.rgbaToInt(value, value, value, 255)
+      houghAcc.accumulation[x + (y * houghAcc.width)] = hexValue
+    }
+  }
+}
+
+export const drawMaxima = (houghAcc, circleCount) => {
+  const results = []
+  for (let resultIndex = 0; resultIndex < circleCount; resultIndex++) {
+    results[resultIndex] = {value: 0}
+  }
+
+  for (let x = 0; x < houghAcc.width; x++) {
+    for (let y = 0; y < houghAcc.height; y++) {
+      const value = Jimp.intToRGBA(houghAcc.accumulation[x + (y * houghAcc.width)]).r
+
+        // if its higher than lowest value add it and then sort
+      if (value > results[(circleCount - 1)].value) {
+        const radius = houghAcc.accumulationRadius[x + (y * houghAcc.width)]
+
+          // add to bottom of array
+        results[(circleCount - 1)] = {
+          x: x,
+          y: y,
+          value: value,
+          radius: radius
+        }
+
+          // shift up until its in right place
+        let i = (circleCount - 2)
+        while ((i >= 0) && (results[i + 1].value > results[i].value)) {
+          const temp = results[i]
+          results[i] = results[i + 1]
+          results[i + 1] = temp
+          i = i - 1
+          if (i < 0) break
+        }
+      }
+    }
+  }
+
+    // ISOLATE VALID RESULTS
+  const validResults = _.filter(results, result => result.value > 0)
+
+    // IDENTIFY SMALLEST ONE
+  const smallestCircle = _.minBy(validResults, result => result.radius)
+  const indexOfSmallest = _.indexOf(results, smallestCircle)
+  console.log('', 'Found smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
+  drawCircleInYellow(houghAcc, smallestCircle.x, smallestCircle.y)
+
+    // FIND CLOSEST FROM SMALLEST
+  const squareDistance = (a, b) => (((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)))
+  const candidatesForClosest = _.differenceWith(validResults, [smallestCircle], _.isEqual)
+  const closestCircleFromSmallest = _.minBy(candidatesForClosest, result => squareDistance(result, smallestCircle))
+  console.log('', 'Found closest from smallest', (circleCount - indexOfSmallest), '/', circleCount, ':', smallestCircle)
+  drawCircleInGreen(houghAcc, closestCircleFromSmallest.x, closestCircleFromSmallest.y)
+
+    // DRAW THE OTHERS
+  const others = _.differenceWith(candidatesForClosest, [closestCircleFromSmallest], _.isEqual)
+  others.forEach(otherCircle => {
+    const indexOfOther = _.indexOf(results, otherCircle)
+    console.log('', 'Found other', (circleCount - indexOfOther), '/', circleCount, ':', otherCircle)
+    drawCircleInRed(houghAcc, otherCircle.x, otherCircle.y)
+  })
+}
+
+const drawCircleInRed = (houghAcc, xCenter, yCenter) => {
+  const red = Jimp.rgbaToInt(255, 0, 0, 255)
+  drawCircle(houghAcc, xCenter, yCenter, red)
+}
+
+const drawCircleInGreen = (houghAcc, xCenter, yCenter) => {
+  const green = Jimp.rgbaToInt(0, 255, 0, 255)
+  drawCircle(houghAcc, xCenter, yCenter, green)
+}
+
+const drawCircleInYellow = (houghAcc, xCenter, yCenter) => {
+  const yellow = Jimp.rgbaToInt(255, 255, 0, 255)
+  drawCircle(houghAcc, xCenter, yCenter, yellow)
+}
+
+const drawCircle = (houghAcc, xCenter, yCenter, color) => {
+    // Display circle center
+  houghAcc.image.setPixelColor(color, xCenter, yCenter)
+
+    // Display circle
+  const radius = 4
+
+  let r2 = radius * radius
+  setPixel(houghAcc, color, xCenter, yCenter + radius)
+  setPixel(houghAcc, color, xCenter, yCenter - radius)
+  setPixel(houghAcc, color, xCenter + radius, yCenter)
+  setPixel(houghAcc, color, xCenter - radius, yCenter)
+
+  let x = 1
+  let y = Math.round(Math.sqrt(r2 - 1) + 0.5)
+  while (x < y) {
+    setPixel(houghAcc, color, xCenter + x, yCenter + y)
+    setPixel(houghAcc, color, xCenter + x, yCenter - y)
+    setPixel(houghAcc, color, xCenter - x, yCenter + y)
+    setPixel(houghAcc, color, xCenter - x, yCenter - y)
+    setPixel(houghAcc, color, xCenter + y, yCenter + x)
+    setPixel(houghAcc, color, xCenter + y, yCenter - x)
+    setPixel(houghAcc, color, xCenter - y, yCenter + x)
+    setPixel(houghAcc, color, xCenter - y, yCenter - x)
+    x += 1
+    y = Math.round(Math.sqrt(r2 - (x * x)) + 0.5)
+  }
+  if (x === y) {
+    setPixel(houghAcc, color, xCenter + x, yCenter + y)
+    setPixel(houghAcc, color, xCenter + x, yCenter - y)
+    setPixel(houghAcc, color, xCenter - x, yCenter + y)
+    setPixel(houghAcc, color, xCenter - x, yCenter - y)
+  }
+}
+
+const setPixel = (houghAcc, color, xPos, yPos) => {
+  houghAcc.image.setPixelColor(color, xPos, yPos)
+}

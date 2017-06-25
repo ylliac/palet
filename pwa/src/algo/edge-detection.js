@@ -1,15 +1,13 @@
-var Sobel = require('sobel')
+import Sobel from 'sobel'
 
-var EdgeDetection = {}
+const edgeDetection = image => {
+  const result = image.clone()
 
-EdgeDetection.process = function (image) {
-  var result = image.clone()
-
-  var sobelData = Sobel(result.bitmap)
-  var sobelImageData = sobelData.toImageData()
+  const sobelData = Sobel(result.bitmap)
+  const sobelImageData = sobelData.toImageData()
   result.bitmap.data = Buffer.from(sobelImageData.data)
 
   return result
 }
 
-module.exports = EdgeDetection
+export default edgeDetection
