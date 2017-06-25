@@ -1,6 +1,15 @@
 var Jimp = require('jimp')
 var _ = require('lodash')
 
+// Precompute cosinus and sinus
+const cosThetaRadians = []
+const sinThetaRadians = []
+for (var theta = 0; theta < 360; theta++) {
+  const thetaRadians = (theta * 3.14159265) / 180
+  cosThetaRadians.push(Math.cos(thetaRadians))
+  sinThetaRadians.push(Math.sin(thetaRadians))
+}
+
 var houghAccumulation = function (image) {
   var HoughAccumulation = {}
 
@@ -58,9 +67,8 @@ var houghAccumulation = function (image) {
           // x = y0 + r * sin(theta)
 
           for (var theta = 0; theta < 360; theta++) {
-            const thetaRadians = (theta * 3.14159265) / 180
-            x0 = Math.round(x - (radius * Math.cos(thetaRadians)))
-            y0 = Math.round(y - (radius * Math.sin(thetaRadians)))
+            x0 = Math.round(x - (radius * cosThetaRadians[theta]))
+            y0 = Math.round(y - (radius * sinThetaRadians[theta]))
             if (x0 < _width && x0 > 0 && y0 < _height && y0 > 0) {
               _acc[x0 + (y0 * _width)] += 1
               _accRadius[x0 + (y0 * _width)] = radius
