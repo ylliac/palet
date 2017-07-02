@@ -273,26 +273,6 @@ export const groupMaxima = houghAcc => {
   houghAcc.accumulation = groupedAcc
 }
 
-export const normalize = houghAcc => {
-  const max = getMaxAccumulation(houghAcc.accumulation, houghAcc.width, houghAcc.height)
-
-   // Normalise all the values
-  let value
-  let hexValue
-  for (let x = 0; x < houghAcc.width; x++) {
-      // console.log('', 'Normalize accumulations', x, '/', width)
-
-    for (let y = 0; y < houghAcc.height; y++) {
-      // console.log('+1', x, y, houghAcc.accumulation[y][x])
-      value = Math.round((houghAcc.accumulation[y][x] / max) * 255.0)
-
-        // DEL acc[x + (y * width)] = 0xff000000 | (value << 16 | value << 8 | value);
-      hexValue = Jimp.rgbaToInt(value, value, value, 255)
-      houghAcc.accumulation[y][x] = hexValue
-    }
-  }
-}
-
 export const drawMaxima = (houghAcc, circleCount) => {
   const results = []
   for (let resultIndex = 0; resultIndex < circleCount; resultIndex++) {
@@ -301,7 +281,7 @@ export const drawMaxima = (houghAcc, circleCount) => {
 
   for (let x = 0; x < houghAcc.width; x++) {
     for (let y = 0; y < houghAcc.height; y++) {
-      const value = Jimp.intToRGBA(houghAcc.accumulation[y][x]).r
+      const value = houghAcc.accumulation[y][x]
 
         // if its higher than lowest value add it and then sort
       if (value > results[(circleCount - 1)].value) {

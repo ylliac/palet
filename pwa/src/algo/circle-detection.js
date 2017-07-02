@@ -7,7 +7,6 @@ import {
   applyThreshold,
   mergeWith,
   groupMaxima,
-  normalize,
   drawMaxima
 } from './hough-accumulation'
 
@@ -21,14 +20,12 @@ const circleDetection = (image, circleCount, threshold, minRadius, maxRadius) =>
 
     mergeWith(mergedAcc, acc)
 
-    console.log('Computing Hough Transform for radius ' + radius + '\r')
+    // console.log('Computing Hough Transform for radius ' + radius + '\r')
   }
 
-  console.log('')
+  // console.log('')
 
   groupMaxima(mergedAcc)
-
-  normalize(mergedAcc)
 
   drawMaxima(mergedAcc, circleCount)
 

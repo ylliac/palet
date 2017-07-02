@@ -17,23 +17,7 @@ export const debug = houghAcc => {
   }
 }
 
-const getMaxAccumulation = (acc, width, height) => {
-    // now normalise to 255 and put in format for a pixel array
-  let max = 0
-
-    // Find max acc value
-  for (let x = 0; x < width; x++) {
-      // console.log('', 'Find max accumulation', x, '/', width)
-
-    for (let y = 0; y < height; y++) {
-      if (acc[y][x] > max) {
-        max = acc[y][x]
-      }
-    }
-  }
-
-  return max
-}
+/// ////////////// STEPS
 
 export const houghAccumulation = sourceImage => {
   let width = sourceImage.bitmap.width
@@ -52,7 +36,7 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
     return value
   }).setDimensions([houghAcc.width, houghAcc.height])
 
-  const compute = gpu.createKernel(function (DATA, radius, threshold) {
+  const compute = gpu.createKernel(function (DATA, /* ACC, */ radius, threshold) {
     var x = this.thread.x
     var y = this.thread.y
     var width = this.dimensions.x
@@ -79,23 +63,12 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
     if (accValue <= threshold) {
       return 0
     } else {
-      return accValue
+      // Merge with existing acc
+      // var idx = ((width * y) + x)
+      // var value = (accValue * 100) + radius
+      // return Math.max(value, ACC[idx])
+      return (accValue * 100) + radius
     }
-  }).setDimensions([houghAcc.width, houghAcc.height])
-
-  const thresh = gpu.createKernel(function (ACC, DEFAULT, threshold) {
-    var result
-    var x = this.thread.x
-    var y = this.thread.y
-    var width = this.dimensions.x
-    var idx = ((width * y) + x)
-    var value = ACC[idx]
-    if (value <= threshold) {
-      result = 0
-    } else {
-      result = DEFAULT[idx]
-    }
-    return result
   }).setDimensions([houghAcc.width, houghAcc.height])
 
   const merge = gpu.createKernel(function (ACC1, ACC2) {
@@ -130,59 +103,37 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
     }
   }).setDimensions([houghAcc.width, houghAcc.height])
 
-  const groupResults = gpu.createKernel(function (ACC, RADIUS) {
+  const groupResults = gpu.createKernel(function (ACC) {
     var x = this.thread.x
     var y = this.thread.y
     var z = this.thread.z
     var width = this.dimensions.x
 
+    var value = ACC[(width * y) + x]
     if (z === 0) {
-      return ACC[(width * y) + x]
+      return Math.floor(value / 100)
     } else {
-      return RADIUS[(width * y) + x]
+      return Math.floor(value - (Math.floor(value / 100) * 100))
     }
   }).setDimensions([houghAcc.width, houghAcc.height, 2])
 
-  const run = gpu.combineKernels(init, compute, thresh, merge, groupMaxima, groupResults, function (width, height, DATA, threshold) {
+  const runComputeForAllRadius = gpu.combineKernels(init, compute, merge, groupMaxima, groupResults, function (width, height, DATA, threshold) {
     var mergedAcc = init(0)
-    var mergedAccRadius = init(0)
-
     for (var radius = 10; radius < 31; radius++) {
-      var accRadius = init(radius)
+      // mergedAcc = compute(DATA, mergedAcc, radius, threshold)
       var acc = compute(DATA, radius, threshold)
-      accRadius = thresh(acc, accRadius, threshold)
-      // acc = thresh(acc, acc, threshold)
-      mergedAccRadius = merge(accRadius, mergedAccRadius)
       mergedAcc = merge(acc, mergedAcc)
     }
 
     mergedAcc = groupMaxima(mergedAcc)
 
-    return groupResults(mergedAcc, mergedAccRadius)
+    return groupResults(mergedAcc)
   })
 
-  const runResults = run(houghAcc.width, houghAcc.height, houghAcc.image.bitmap.data, threshold)
+  const runResults = runComputeForAllRadius(houghAcc.width, houghAcc.height, houghAcc.image.bitmap.data, threshold)
 
   houghAcc.accumulation = runResults[0].map(typedArray => Array.from(typedArray))
   houghAcc.accumulationRadius = runResults[1].map(typedArray => Array.from(typedArray))
-}
-
-export const normalize = houghAcc => {
-  const max = getMaxAccumulation(houghAcc.accumulation, houghAcc.width, houghAcc.height)
-
-  // TODO Execute on GPU
-
-  // Normalise all the values
-  let value
-  let hexValue
-  for (let x = 0; x < houghAcc.width; x++) {
-    for (let y = 0; y < houghAcc.height; y++) {
-      value = Math.round((houghAcc.accumulation[y][x] / max) * 255.0)
-
-      hexValue = Jimp.rgbaToInt(value, value, value, 255)
-      houghAcc.accumulation[y][x] = hexValue
-    }
-  }
 }
 
 export const drawMaxima = (houghAcc, circleCount) => {
@@ -193,7 +144,7 @@ export const drawMaxima = (houghAcc, circleCount) => {
 
   for (let x = 0; x < houghAcc.width; x++) {
     for (let y = 0; y < houghAcc.height; y++) {
-      const value = Jimp.intToRGBA(houghAcc.accumulation[y][x]).r
+      const value = houghAcc.accumulation[y][x]
 
         // if its higher than lowest value add it and then sort
       if (value > results[(circleCount - 1)].value) {
@@ -207,7 +158,7 @@ export const drawMaxima = (houghAcc, circleCount) => {
           radius: radius
         }
 
-          // shift up until its in right place
+        // shift up until its in right place
         let i = (circleCount - 2)
         while ((i >= 0) && (results[i + 1].value > results[i].value)) {
           const temp = results[i]

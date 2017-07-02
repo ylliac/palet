@@ -15,8 +15,6 @@ const circleDetectionGPU = (image, circleCount, threshold, minRadius, maxRadius)
 
   computeForAllRadiusGPU(mergedAccGPU, threshold)
 
-  normalize(mergedAccGPU)
-
   drawMaxima(mergedAccGPU, circleCount)
 
   console.log('done')
