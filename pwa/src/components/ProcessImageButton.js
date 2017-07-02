@@ -4,12 +4,12 @@ import { processImageFromImageData } from '../commands/processImage'
 
 // Example avec worker: https://github.com/oliver-moran/jimp/blob/master/browser/examples/example3.html
 
-export const ProcessImageButton = ({processImageFromImageData, imageData}) => {
+export const ProcessImageButton = ({label, mode, processImageFromImageData, imageData}) => {
   const handleClick = () => {
-    processImageFromImageData(imageData)
+    processImageFromImageData(imageData, mode)
   }
 
-  return imageData ? <button onClick={handleClick}>Analyser</button> : <div />
+  return imageData ? <button onClick={handleClick}>{label}</button> : <div />
 }
 
 const mapStateToProps = (state) => {

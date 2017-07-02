@@ -6,17 +6,17 @@ import {loadImageData} from './loadImage'
 
 const Jimp = window.Jimp
 
-export const processImage = (image) => {
+export const processImage = (image, mode) => {
   return (dispatch) => {
     const resizedImage = image.resize(400, Jimp.AUTO)
-    return processImageAlgorithm(resizedImage)
+    return processImageAlgorithm(resizedImage, mode)
       .getBase64(Jimp.MIME_JPEG, function (err, imageData) {
         dispatch(loadImageData(imageData))
       })
   }
 }
 
-export const processImageFromImageData = (imageData) => {
+export const processImageFromImageData = (imageData, mode) => {
   if (!imageData) return
 
   return (dispatch) => {
@@ -39,7 +39,7 @@ export const processImageFromImageData = (imageData) => {
     Jimp
       .read(arrayBuffer)
       .then(function (image) {
-        dispatch(processImage(image))
+        dispatch(processImage(image, mode))
       }).catch(function (err) {
         console.error(err)
       })

@@ -5,6 +5,7 @@ import Image from './Image'
 import SelectImageButton from './SelectImageButton'
 import LoadSampleButton from './LoadSampleButton'
 import ProcessImageButton from './ProcessImageButton'
+import {CPU, GPU_SIMPLE, GPU_OPTIM1, GPU_OPTIM2} from '../algo'
 
 const App = () => {
   return (
@@ -14,7 +15,10 @@ const App = () => {
         <h2>Palet</h2>
       </div>
       <Image />
-      <ProcessImageButton />
+      <ProcessImageButton label='Analyser (CPU)' mode={CPU} />
+      <ProcessImageButton label='Analyser (GPU simple)' mode={GPU_SIMPLE} />
+      <ProcessImageButton label='Analyser (GPU optim 1)' mode={GPU_OPTIM1} />
+      <ProcessImageButton label='Analyser (GPU optim 2)' mode={GPU_OPTIM2} />
       <SelectImageButton />
       <LoadSampleButton />
     </div>

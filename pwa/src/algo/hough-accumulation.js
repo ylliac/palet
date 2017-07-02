@@ -1,8 +1,6 @@
 const Jimp = require('jimp')
 const _ = require('lodash')
 
-const gpu = new window.GPU()
-
 // Precompute cosinus and sinus
 const cosThetaRadians = []
 const sinThetaRadians = []
@@ -68,30 +66,6 @@ export const houghAccumulation = sourceImage => {
   }
 }
 
-export const houghAccumulationGPU = sourceImage => {
-  let width = sourceImage.bitmap.width
-  let height = sourceImage.bitmap.height
-  let image = sourceImage.clone()
-
-  const init = function () {
-    return 0
-  }
-  const initOnGPU = gpu.createKernel(init, {
-    dimensions: [width, height],
-    mode: 'gpu'
-  })
-  const acc = initOnGPU()
-  const accRadius = initOnGPU()
-
-  return {
-    accumulation: acc,
-    accumulationRadius: accRadius,
-    width,
-    height,
-    image
-  }
-}
-
 export const computeForRadius = (houghAcc, radius) => {
   let x
   let y
@@ -133,7 +107,6 @@ export const computeForRadius = (houghAcc, radius) => {
   }
 }
 
-// TODO
 export const computeForRadiusScan = (houghAcc, radius) => {
   let theta
 
@@ -149,7 +122,9 @@ export const computeForRadiusScan = (houghAcc, radius) => {
     // idx is the position start position of this rgba tuple in the bitmap Buffer
     // this is the image
 
-    const red = this.bitmap.data[ idx + 0 ]
+    // const red = this.bitmap.data[ idx + 0 ]
+    const pixelColorHex = houghAcc.image.getPixelColor(x, y)
+    const red = Jimp.intToRGBA(pixelColorHex).r
 
     if (red === 255) {
       // We compute every circle passing by this point
@@ -161,9 +136,8 @@ export const computeForRadiusScan = (houghAcc, radius) => {
         x0 = Math.round(x - (cosMultiplyRadius[theta]))
         y0 = Math.round(y - (sinMultiplyRadius[theta]))
         if (x0 > 0 && y0 > 0 && x0 < houghAcc.width && y0 < houghAcc.height) {
-          const editIndex = x0 + (y0 * houghAcc.width)
-          houghAcc.accumulation[editIndex] += 1
-          houghAcc.accumulationRadius[editIndex] = radius
+          houghAcc.accumulation[y0][x0] += 1
+          houghAcc.accumulationRadius[y0][x0] = radius
         }
       }
     }
@@ -205,40 +179,7 @@ export const computeForRadiusReverseOLD = (houghAcc, radius) => {
   }
 }
 
-// TODO This implementation is made from GPU one, why result are different from computeForRadiusReverseOLD ???
 export const computeForRadiusReverse = (houghAcc, radius) => {
-  // // Precompute radius x cos/sin
-  // const cosMultiplyRadius = cosThetaRadians.map(v => v * radius)
-  // const sinMultiplyRadius = sinThetaRadians.map(v => v * radius)
-
-  // // Compute accumulation matrix for each bitmap pixel
-  // for (x = 0; x < houghAcc.width; x++) {
-  //   // console.log('', 'Accumulation', x, '/', width)
-
-  //   for (y = 0; y < houghAcc.height; y++) {
-  //     // If the pixel is black
-  //     const pixelColorHex = houghAcc.image.getPixelColor(x, y)
-  //     const pixelColor = Jimp.intToRGBA(pixelColorHex).r
-
-  //     // DEL if ((pixelColor & 0xff) == 255) {
-  //     if (pixelColor === 255) {
-  //       // We compute every circle passing by this point
-  //       // using this formula:
-  //       // x = x0 + r * cos(theta)
-  //       // x = y0 + r * sin(theta)
-
-  //       for (theta = 0; theta < 360; theta++) {
-  //         x0 = Math.round(x - (cosMultiplyRadius[theta]))
-  //         y0 = Math.round(y - (sinMultiplyRadius[theta]))
-  //         if (x0 > 0 && y0 > 0 && x0 < houghAcc.width && y0 < houghAcc.height) {
-  //           houghAcc.accumulation[y0][x0] += 1
-  //           houghAcc.accumulationRadius[y0][x0] = radius
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
   let x
   let y
 
@@ -258,8 +199,6 @@ export const computeForRadiusReverse = (houghAcc, radius) => {
         if (x0 > 0 && y0 > 0 && x0 < width && y0 < height) {
           var i = ((width * y0) + x0) * 4
           var red = houghAcc.image.bitmap.data[i]
-          // const pixelColorHex = houghAcc.image.getPixelColor(x0, y0)
-          // const red = Jimp.intToRGBA(pixelColorHex).r
           if (red === 255) {
             accValue++
           }
@@ -272,78 +211,15 @@ export const computeForRadiusReverse = (houghAcc, radius) => {
   }
 }
 
-// TODO
-export const computeForRadiusGPU = (houghAcc, radius) => {
-  const run = function (DATA, radius) {
-    var x = this.thread.x
-    var y = this.thread.y
-    var width = this.dimensions.x
-    var height = this.dimensions.y
-
-    var accValue = 0
-    for (var theta = 0; theta < 360; theta++) {
-      var thetaRadians = (theta * 3.14159265) / 180
-      var cos = x - (radius * Math.cos(thetaRadians))
-      var x0 = Math.floor(cos + 0.5)
-      var sin = y - (radius * Math.sin(thetaRadians))
-      var y0 = Math.floor(sin + 0.5)
-      if (x0 > 0 && y0 > 0 && x0 < width && y0 < height) {
-        var i = ((width * y0) + x0) * 4
-        var red = DATA[i]
-        if (red === 255) {
-          accValue++
-        }
-      }
-    }
-    return accValue
-  }
-  const runOnGPU = gpu.createKernel(run, {
-    dimensions: [houghAcc.width, houghAcc.height],
-    mode: 'gpu'
-  })
-  houghAcc.accumulation = runOnGPU(houghAcc.image.bitmap.data, radius)
-
-  const setRadius = function (radius) {
-    return radius
-  }
-  const setRadiusOnGPU = gpu.createKernel(setRadius, {
-    dimensions: [houghAcc.width, houghAcc.height],
-    mode: 'gpu'
-  })
-  houghAcc.accumulationRadius = setRadiusOnGPU(radius)
-}
-
 export const applyThreshold = (houghAcc, threshold) => {
   for (let x = 0; x < houghAcc.width; x++) {
     for (let y = 0; y < houghAcc.height; y++) {
       if (houghAcc.accumulation[y][x] <= threshold) {
         houghAcc.accumulation[y][x] = 0
+        houghAcc.accumulationRadius[y][x] = 0
       }
     }
   }
-}
-
-export const applyThresholdGPU = (houghAcc, threshold) => {
-  const run = function (ACC, threshold) {
-    var x = this.thread.x
-    var y = this.thread.y
-    var result = ACC[y][x]
-    if (result <= threshold) {
-      result = 0
-    }
-    return result
-  }
-
-  // console.log('accumulation', houghAcc.accumulation)
-  // const run = function (ACC, threshold) {
-  //   return ACC[this.thread.y][this.thread.x]
-  // }
-
-  const runOnGPU = gpu.createKernel(run, {
-    dimensions: [houghAcc.width, houghAcc.height],
-    mode: 'gpu'
-  })
-  houghAcc.accumulation = runOnGPU(houghAcc.accumulation, threshold)
 }
 
 export const mergeWith = (houghAcc, accToMerge) => {
@@ -358,26 +234,6 @@ export const mergeWith = (houghAcc, accToMerge) => {
       houghAcc.accumulationRadius[y][x] = Math.max(houghAcc.accumulationRadius[y][x], otherAccRadius[y][x])
     }
   }
-}
-
-export const mergeWithGPU = (houghAcc, accToMerge) => {
-  const otherAcc = accToMerge.accumulation
-  const otherAccRadius = accToMerge.accumulationRadius
-
-  // TODO ACY Il doit y avoir une erreur ici, on prend la valeur d'accumulation max et le rayon max
-  // or il n'est pas garanti que le rayon max corresponde à la valeur d'accumulation max
-  const run = function (ACC1, ACC2) {
-    var x = this.thread.x
-    var y = this.thread.y
-
-    return Math.max(ACC1[y][x], ACC2[y][x])
-  }
-  const runOnGPU = gpu.createKernel(run, {
-    dimensions: [houghAcc.image.bitmap.width, houghAcc.image.bitmap.height],
-    mode: 'gpu'
-  })
-  houghAcc.accumulation = runOnGPU(houghAcc.accumulation, otherAcc)
-  houghAcc.accumulationRadius = runOnGPU(houghAcc.accumulationRadius, otherAccRadius)
 }
 
 export const groupMaxima = houghAcc => {
@@ -408,7 +264,6 @@ export const groupMaxima = houghAcc => {
       const isCloseToGreaterValue = _.some(closeValues, closeValue => closeValue > value)
       if (isCloseToGreaterValue) {
         groupedAcc[y][x] = 0
-        // houghAcc.accumulationRadius[y][x] = 0
       } else {
         groupedAcc[y][x] = value
       }
@@ -418,41 +273,10 @@ export const groupMaxima = houghAcc => {
   houghAcc.accumulation = groupedAcc
 }
 
-export const groupMaximaGPU = houghAcc => {
-  const run = function (ACC) {
-    var x = this.thread.x
-    var y = this.thread.y
-
-    var value = ACC[y][x]
-
-    if (
-      (ACC[y][x + 1]) > value ||
-      (ACC[y + 1][x + 1]) > value ||
-      (ACC[y - 1][x + 1]) > value ||
-      (ACC[y][x - 1]) > value ||
-      (ACC[y + 1][x - 1]) > value ||
-      (ACC[y - 1][x - 1]) > value ||
-      (ACC[y + 1][x]) > value ||
-      (ACC[y - 1][x]) > value
-    ) {
-      return 0
-    } else {
-      return value
-    }
-  }
-  const runOnGPU = gpu.createKernel(run, {
-    dimensions: [houghAcc.image.bitmap.width, houghAcc.image.bitmap.height],
-    mode: 'gpu'
-  })
-  houghAcc.accumulation = runOnGPU(houghAcc.accumulation)
-}
-
 export const normalize = houghAcc => {
   const max = getMaxAccumulation(houghAcc.accumulation, houghAcc.width, houghAcc.height)
 
-  // TODO Execute on GPU
-
-    // Normalise all the values
+   // Normalise all the values
   let value
   let hexValue
   for (let x = 0; x < houghAcc.width; x++) {
