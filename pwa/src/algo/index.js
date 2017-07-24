@@ -13,6 +13,8 @@ export const GPU_OPTIM2 = 'GPU_OPTIM2'
 export const GPU_OPTIM3 = 'GPU_OPTIM3'
 
 export default function processImage (image, mode) {
+  const before = window.performance.now()
+
   const computeMode = mode || CPU
 
   var colorThreshold = 150
@@ -41,7 +43,9 @@ export default function processImage (image, mode) {
     image = circleDetectionGPUoptim3(image, circleCount, angleThreshold, minRadius, maxRadius)
   }
 
-  console.log('Computed Circle Detection')
+  const after = window.performance.now()
+
+  console.log('Computed Circle Detection in', after - before)
 
   return image
 }

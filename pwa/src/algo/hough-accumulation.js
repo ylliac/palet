@@ -44,7 +44,7 @@ export const houghAccumulation = sourceImage => {
   let height = sourceImage.bitmap.height
   let image = sourceImage.clone()
 
-  console.log(width, height)
+  // console.log(width, height)
 
   let acc = []
   let accRadius = []

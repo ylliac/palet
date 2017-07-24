@@ -1,4 +1,6 @@
-// OPTIM 3 : on itère sur tous les radius en une passe
+// OPTIM 3 :
+// - quelques contournement de bugs marqués BUG (voir https://github.com/gpujs/gpu.js/issues/152)
+// - on itère sur tous les radius en une passe
 
 const Jimp = require('jimp')
 const _ = require('lodash')
