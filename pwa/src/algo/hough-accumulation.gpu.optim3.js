@@ -1,3 +1,5 @@
+// OPTIM 3 : on itère sur tous les radius en une passe
+
 const Jimp = require('jimp')
 const _ = require('lodash')
 
@@ -17,26 +19,29 @@ export const houghAccumulation = sourceImage => {
 
 export const computeForAllRadiusGPU = (houghAcc, threshold) => {
   const computeAllRadius = gpu.createKernel(function (DATA, threshold) {
-    var x = this.thread.x
-    var y = this.thread.y
-    var width = this.dimensions.x
-    var height = this.dimensions.y
-
     var result = 0
+    result += 0 // BUG
     for (var radius = 10; radius < 31; radius++) {
       // Compute accumulation
       var accValue = 0
+      accValue += 0 // BUG
       for (var theta = 0; theta < 360; theta++) {
         var thetaRadians = (theta * 3.14159265) / 180
-        var cos = x - (radius * Math.cos(thetaRadians))
+        thetaRadians += 0 // BUG
+        var cos = this.thread.x - (radius * Math.cos(thetaRadians))
+        cos += 0 // BUG
         var x0 = Math.floor(cos + 0.5)
-        var sin = y - (radius * Math.sin(thetaRadians))
+        x0 += 0 // BUG
+        var sin = this.thread.y - (radius * Math.sin(thetaRadians))
+        sin += 0 // BUG
         var y0 = Math.floor(sin + 0.5)
-        if (x0 > 0 && y0 > 0 && x0 < width && y0 < height) {
-          var i = ((width * y0) + x0) * 4
+        if (x0 > 0 && y0 > 0 && x0 < this.dimensions.x && y0 < this.dimensions.y) {
+          var i = ((this.dimensions.x * y0) + x0) * 4
           var red = DATA[i]
           if (red === 255) {
             accValue++
+          } else { // BUG
+            for (var t = 0; t < 0; t++) { break }
           }
         }
       }
@@ -44,6 +49,8 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
       // Apply threshold
       if (accValue > threshold) {
         result = Math.max(result, (accValue * 100) + radius)
+      } else { // BUG
+        for (var s = 0; s < 0; s++) { break }
       }
     }
 
@@ -67,6 +74,7 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
       (ACC[(width * (y + 1)) + x]) > value ||
       (ACC[(width * (y - 1)) + x]) > value
     ) {
+      for (var s = 0; s < 0; s++) { break } // BUG
       return 0
     } else {
       return value
@@ -81,6 +89,7 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
 
     var value = ACC[(width * y) + x]
     if (z === 0) {
+      for (var s = 0; s < 0; s++) { break } // BUG
       return Math.floor(value / 100)
     } else {
       return Math.floor(value - (Math.floor(value / 100) * 100))

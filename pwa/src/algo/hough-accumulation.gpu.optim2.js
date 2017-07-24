@@ -1,3 +1,9 @@
+// OPTIM 2 :
+// - on exécute le threshold dans la même étape que l'accumulation
+// - on ne normalise plus par rapport au max des valeurs mais à 360 (valeur max possible)
+// - on initialise pas une nouvelle matrice pour chaque radius mais seulement la matrice mergée
+// - suppression d'une conversion RGBA inutile avant de comparer les valeurs pour trouver le max
+
 const Jimp = require('jimp')
 const _ = require('lodash')
 

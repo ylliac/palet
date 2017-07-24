@@ -1,3 +1,5 @@
+// OPTIM 0 : Les étapes de l'algo sont exécutées sur GPU et les résultats sont combinés sur CPU
+
 const Jimp = require('jimp')
 const _ = require('lodash')
 

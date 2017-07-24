@@ -2,5 +2,10 @@
 {
     "standard.autoFixOnSave": true,
     "javascript.validate.enable": false,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "standard.options": {
+      "ignore": [
+        //   "**/algo/hough-accumulation.gpu.**"
+      ]
+    }
 }

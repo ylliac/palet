@@ -1,3 +1,5 @@
+// OPTIM 1 : Utilisation de combine kernel pour combiner toutes les étapes sur GPU
+
 const Jimp = require('jimp')
 const _ = require('lodash')
 
