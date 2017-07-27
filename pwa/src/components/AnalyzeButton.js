@@ -4,7 +4,6 @@ import RaisedButton from 'material-ui/RaisedButton'
 import Icon from 'material-ui/svg-icons/image/adjust'
 
 import { processImageFromImageData } from '../commands/processImage'
-import {GPU_OPTIM3} from '../algo'
 
 import {
   blue100
@@ -18,11 +17,11 @@ const style = {
 
 // Example avec worker: https://github.com/oliver-moran/jimp/blob/master/browser/examples/example3.html
 
-const AnalyzeButton = ({imageData, processImageFromImageData}) => {
+const AnalyzeButton = ({imageData, processImageFromImageData, mode}) => {
   if (!imageData) return null
 
   const analyzeHandler = () => {
-    processImageFromImageData(imageData, GPU_OPTIM3)
+    processImageFromImageData(imageData, mode)
   }
 
   return (

@@ -5,8 +5,6 @@
 const Jimp = require('jimp')
 const _ = require('lodash')
 
-const gpu = new window.GPU()
-
 export const houghAccumulation = sourceImage => {
   let width = sourceImage.bitmap.width
   let height = sourceImage.bitmap.height
@@ -20,6 +18,7 @@ export const houghAccumulation = sourceImage => {
 }
 
 export const computeForAllRadiusGPU = (houghAcc, threshold) => {
+  const gpu = new window.GPU()
   const computeAllRadius = gpu.createKernel(function (DATA, threshold) {
     var result = 0
     result += 0 // BUG
@@ -66,14 +65,15 @@ export const computeForAllRadiusGPU = (houghAcc, threshold) => {
 
     var value = ACC[(width * y) + x]
 
+    // Here we put >= or > so that if two values are equals, only one will be deleted
     if (
-      (ACC[(width * y) + x + 1]) > value ||
-      (ACC[(width * (y + 1)) + x + 1]) > value ||
-      (ACC[(width * (y - 1)) + x + 1]) > value ||
+      (ACC[(width * y) + x + 1]) >= value ||
       (ACC[(width * y) + x - 1]) > value ||
+      (ACC[(width * (y + 1)) + x + 1]) >= value ||
       (ACC[(width * (y + 1)) + x - 1]) > value ||
+      (ACC[(width * (y - 1)) + x + 1]) >= value ||
       (ACC[(width * (y - 1)) + x - 1]) > value ||
-      (ACC[(width * (y + 1)) + x]) > value ||
+      (ACC[(width * (y + 1)) + x]) >= value ||
       (ACC[(width * (y - 1)) + x]) > value
     ) {
       for (var s = 0; s < 0; s++) { break } // BUG

@@ -2,16 +2,26 @@
 
 import 'jimp/browser/lib/jimp'
 import processImageAlgorithm from '../algo'
-import {loadImageData} from './loadImage'
 
 const Jimp = window.Jimp
+
+export const loadProcessedImageData = (processedImageData) => {
+  return {
+    type: 'LOAD_PROCESSED_IMAGE',
+    processedImageData,
+    perform: (state, action) => {
+      const newImage = {...state.image, processedImageData: action.processedImageData}
+      return {...state, image: newImage}
+    }
+  }
+}
 
 export const processImage = (image, mode) => {
   return (dispatch) => {
     const resizedImage = image.resize(400, Jimp.AUTO)
     return processImageAlgorithm(resizedImage, mode)
       .getBase64(Jimp.MIME_JPEG, function (err, imageData) {
-        dispatch(loadImageData(imageData))
+        dispatch(loadProcessedImageData(imageData))
       })
   }
 }

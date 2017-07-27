@@ -6,7 +6,11 @@ export const loadImageData = (imageData) => {
     type: 'LOAD_IMAGE',
     imageData,
     perform: (state, action) => {
-      const newImage = {...state.image, imageData: action.imageData}
+      const newImage = {
+        ...state.image,
+        imageData: action.imageData,
+        processedImageData: null
+      }
       return {...state, image: newImage}
     }
   }

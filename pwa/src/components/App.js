@@ -14,7 +14,9 @@ const style = {
     justifyContent: 'center',
     height: '100vh',
     maxHeight: '100vh',
-    background: blue500
+    background: blue500,
+    overflow: 'hidden',
+    alignItems: 'center'
   }
 }
 
