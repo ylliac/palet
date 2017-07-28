@@ -1,5 +1,7 @@
-const Jimp = require('jimp')
-const _ = require('lodash')
+/* globals Jimp */
+
+import 'jimp/browser/lib/jimp'
+import _ from 'lodash'
 
 // Precompute cosinus and sinus
 const cosThetaRadians = []

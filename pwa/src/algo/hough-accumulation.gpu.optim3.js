@@ -1,9 +1,10 @@
 // OPTIM 3 :
 // - quelques contournement de bugs marqués BUG (voir https://github.com/gpujs/gpu.js/issues/152)
 // - on itère sur tous les radius en une passe
+/* globals Jimp GPU */
 
-const Jimp = require('jimp')
-const _ = require('lodash')
+import 'jimp/browser/lib/jimp'
+import _ from 'lodash'
 
 export const houghAccumulation = sourceImage => {
   let width = sourceImage.bitmap.width
@@ -18,7 +19,7 @@ export const houghAccumulation = sourceImage => {
 }
 
 export const computeForAllRadiusGPU = (houghAcc, threshold) => {
-  const gpu = new window.GPU()
+  const gpu = new GPU()
   const computeAllRadius = gpu.createKernel(function (DATA, threshold) {
     var result = 0
     result += 0 // BUG

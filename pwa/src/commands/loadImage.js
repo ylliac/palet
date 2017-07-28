@@ -1,5 +1,7 @@
 /* globals FileReader */
-import 'jimp/browser/lib/jimp'
+/* eslint import/no-webpack-loader-syntax: off */
+
+const LoadWorker = require('worker-loader!./load-worker.js')
 
 export const loadImageData = (imageData) => {
   return {
@@ -16,25 +18,19 @@ export const loadImageData = (imageData) => {
   }
 }
 
-export const loadImage = (image) => {
+const loadInWebWorker = (imageSrc) => {
   return (dispatch) => {
-    image
-      .resize(400, window.Jimp.AUTO)
-      .getBase64(window.Jimp.MIME_JPEG, function (err, imageData) {
-        dispatch(loadImageData(imageData))
-      })
+    var worker = new LoadWorker()
+    worker.onmessage = function (e) {
+      dispatch(loadImageData(e.data))
+    }
+    worker.postMessage(imageSrc)
   }
 }
 
 export const loadImageFromFileName = (imageFileName) => {
   return (dispatch) => {
-    window.Jimp
-      .read(imageFileName)
-      .then(function (image) {
-        dispatch(loadImage(image))
-      }).catch(function (err) {
-        console.error(err)
-      })
+    dispatch(loadInWebWorker(imageFileName))
   }
 }
 
@@ -42,13 +38,7 @@ export const loadImageFromFile = (imageFile) => {
   return (dispatch) => {
     const fileReader = new FileReader()
     fileReader.onload = (event) => {
-      window.Jimp
-      .read(fileReader.result)
-      .then(function (image) {
-        dispatch(loadImage(image))
-      }).catch(function (err) {
-        console.error(err)
-      })
+      dispatch(loadInWebWorker(fileReader.result))
     }
     fileReader.onerror = (error) => {
       console.log(error)

@@ -1,9 +1,10 @@
 // OPTIM 0 : Les étapes de l'algo sont exécutées sur GPU et les résultats sont combinés sur CPU
+/* globals Jimp GPU */
 
-const Jimp = require('jimp')
-const _ = require('lodash')
+import 'jimp/browser/lib/jimp'
+import _ from 'lodash'
 
-const gpu = new window.GPU()
+const gpu = new GPU()
 
 // TODO Precompute cosinus and sinus and pass them in constants ?
 

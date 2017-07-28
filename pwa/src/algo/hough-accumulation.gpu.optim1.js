@@ -1,7 +1,8 @@
 // OPTIM 1 : Utilisation de combine kernel pour combiner toutes les étapes sur GPU
+/* globals Jimp */
 
-const Jimp = require('jimp')
-const _ = require('lodash')
+import 'jimp/browser/lib/jimp'
+import _ from 'lodash'
 
 const gpu = new window.GPU()
 

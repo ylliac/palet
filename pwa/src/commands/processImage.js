@@ -18,8 +18,7 @@ export const loadProcessedImageData = (processedImageData) => {
 
 export const processImage = (image, mode) => {
   return (dispatch) => {
-    const resizedImage = image.resize(400, Jimp.AUTO)
-    return processImageAlgorithm(resizedImage, mode)
+    return processImageAlgorithm(image, mode)
       .getBase64(Jimp.MIME_JPEG, function (err, imageData) {
         dispatch(loadProcessedImageData(imageData))
       })
@@ -47,12 +46,15 @@ export const processImageFromImageData = (imageData, mode) => {
     const arrayBuffer = bytes.buffer
 
     Jimp
-      .read(arrayBuffer)
-      .then(function (image) {
-        dispatch(processImage(image, mode))
-      }).catch(function (err) {
-        console.error(err)
-      })
+    .read(arrayBuffer)
+    .then(function (image) {
+      return processImageAlgorithm(image, mode)
+        .getBase64(Jimp.MIME_JPEG, function (err, imageData) {
+          dispatch(loadProcessedImageData(imageData))
+        })
+    }).catch(function (err) {
+      console.error(err)
+    })
   }
 }
 

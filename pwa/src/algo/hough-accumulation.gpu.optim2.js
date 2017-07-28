@@ -3,9 +3,10 @@
 // - on ne normalise plus par rapport au max des valeurs mais à 360 (valeur max possible)
 // - on initialise pas une nouvelle matrice pour chaque radius mais seulement la matrice mergée
 // - suppression d'une conversion RGBA inutile avant de comparer les valeurs pour trouver le max
+/* globals Jimp */
 
-const Jimp = require('jimp')
-const _ = require('lodash')
+import 'jimp/browser/lib/jimp'
+import _ from 'lodash'
 
 const gpu = new window.GPU()
 
