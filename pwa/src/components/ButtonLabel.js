@@ -18,8 +18,12 @@ const style = {
   }
 }
 
-const LoadSampleButton = ({imageData, loadSampleImage}) => {
-  const label = imageData ? 'or' : 'Let\'s start with...'
+const LoadSampleButton = ({imageData, busy, loadSampleImage}) => {
+  const label = busy
+  ? 'wait for it...'
+  : imageData
+  ? 'or'
+  : 'Let\'s start with...'
 
   return (
     <div style={style.label}>
@@ -30,7 +34,8 @@ const LoadSampleButton = ({imageData, loadSampleImage}) => {
 
 const mapStateToProps = (state) => {
   return {
-    imageData: state.image ? state.image.imageData : null
+    imageData: state.image ? state.image.imageData : null,
+    busy: state.busy
   }
 }
 

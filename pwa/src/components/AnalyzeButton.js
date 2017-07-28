@@ -17,8 +17,8 @@ const style = {
 
 // Example avec worker: https://github.com/oliver-moran/jimp/blob/master/browser/examples/example3.html
 
-const AnalyzeButton = ({imageData, processImageFromImageData, mode}) => {
-  if (!imageData) return null
+const AnalyzeButton = ({imageData, busy, processImageFromImageData, mode}) => {
+  if (busy || !imageData) return null
 
   const analyzeHandler = () => {
     processImageFromImageData(imageData, mode)
@@ -38,7 +38,8 @@ const AnalyzeButton = ({imageData, processImageFromImageData, mode}) => {
 
 const mapStateToProps = (state) => {
   return {
-    imageData: state.image ? state.image.imageData : null
+    imageData: state.image ? state.image.imageData : null,
+    busy: state.busy
   }
 }
 

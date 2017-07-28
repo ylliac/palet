@@ -1,6 +1,8 @@
 /* globals FileReader */
 /* eslint import/no-webpack-loader-syntax: off */
 
+import {busy} from './busy'
+
 const LoadWorker = require('worker-loader!./load-worker.js')
 
 export const loadImageData = (imageData) => {
@@ -20,8 +22,11 @@ export const loadImageData = (imageData) => {
 
 const loadInWebWorker = (imageSrc) => {
   return (dispatch) => {
+    dispatch(busy(true))
+
     var worker = new LoadWorker()
     worker.onmessage = function (e) {
+      dispatch(busy(false))
       dispatch(loadImageData(e.data))
     }
     worker.postMessage(imageSrc)

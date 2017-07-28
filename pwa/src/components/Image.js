@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import CircularProgress from 'material-ui/CircularProgress'
 
 const style = {
   root: {
@@ -15,7 +16,11 @@ const style = {
   }
 }
 
-const Image = ({imageData, processedImageData}) => {
+const Image = ({imageData, busy, processedImageData}) => {
+  if (busy) {
+    return <CircularProgress />
+  }
+
   const data = processedImageData || imageData
 
   if (data) {
@@ -32,7 +37,8 @@ const Image = ({imageData, processedImageData}) => {
 const mapStateToProps = (state) => {
   return {
     imageData: state.image ? state.image.imageData : null,
-    processedImageData: state.image ? state.image.processedImageData : null
+    processedImageData: state.image ? state.image.processedImageData : null,
+    busy: state.busy
   }
 }
 
